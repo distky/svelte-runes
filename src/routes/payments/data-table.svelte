@@ -25,7 +25,7 @@
 		email: string;
 	};
 
-	const data: Payment[] = [
+	const data: Payment[] = $state([
 		{
 			id: 'm5gr84i9',
 			amount: 316,
@@ -56,7 +56,7 @@
 			status: 'Failed',
 			email: 'carmella@hotmail.com'
 		}
-	];
+	]);
 
 	const table = createTable(readable(data), {
 		sort: addSortBy({ disableMultiSort: true }),
@@ -151,11 +151,13 @@
 
 	const { hiddenColumnIds } = pluginStates.hide;
 	const ids = flatColumns.map((c) => c.id);
-	let hideForId = Object.fromEntries(ids.map((id) => [id, true]));
+	let hideForId = $state(Object.fromEntries(ids.map((id) => [id, true])));
 
-	$: $hiddenColumnIds = Object.entries(hideForId)
-		.filter(([, hide]) => !hide)
-		.map(([id]) => id);
+	$effect(() => {
+		$hiddenColumnIds = Object.entries(hideForId)
+			.filter(([, hide]) => !hide)
+			.map(([id]) => id);
+	});
 
 	const { hasNextPage, hasPreviousPage, pageIndex } = pluginStates.page;
 	const { filterValue } = pluginStates.filter;
