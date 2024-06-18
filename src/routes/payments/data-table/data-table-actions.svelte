@@ -3,7 +3,7 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import Ellipsis from 'lucide-svelte/icons/ellipsis';
 
-	let { id } = $props<{ id: string }>();
+	let { id }: { id: string } = $props();
 </script>
 
 <DropdownMenu.Root>
