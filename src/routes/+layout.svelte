@@ -1,7 +1,9 @@
 <script>
 	import '../app.css';
+
+	let { children } = $props();
 </script>
 
-<slot></slot>
+{@render children()}
 
 <style></style>
