@@ -1,3 +1,19 @@
+<script context="module">
+	export const placeholderSchema = z.object({
+		count: z.number(),
+		next: z.string().url(),
+		previous: z.string().url().nullable(),
+		results: z
+			.object({
+				name: z.string(),
+				url: z.string().url()
+			})
+			.array()
+	});
+
+	export type Placeholder = z.infer<typeof placeholderSchema>;
+</script>
+
 <script lang="ts">
 	import CirclePlus from 'lucide-svelte/icons/circle-plus';
 	import Ellipsis from 'lucide-svelte/icons/ellipsis';
@@ -24,6 +40,14 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { User } from 'lucide-svelte';
+	import { z } from 'zod';
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
+
+	const { fetchData } = data;
+
+	console.log(fetchData);
 </script>
 
 <div class="flex min-h-screen w-full flex-col bg-muted/40">
