@@ -11,6 +11,9 @@ importers:
       '@internationalized/date':
         specifier: ^3.5.4
         version: 3.5.4
+      '@tanstack/svelte-table':
+        specifier: 9.0.0-alpha.9
+        version: 9.0.0-alpha.9(svelte@5.0.0-next.172)
       bits-ui:
         specifier: ^0.21.11
         version: 0.21.11(svelte@5.0.0-next.172)
@@ -663,6 +666,16 @@ packages:
     peerDependencies:
       tailwindcss: '>=3.0.0 || insiders'
 
+  '@tanstack/svelte-table@9.0.0-alpha.9':
+    resolution: {integrity: sha512-uJF8YjJly4wbKEr5nwdzHSmWhVYpMBg3Ay4/5k20CJ+Mbb/WkzaV+ABvDWhsWBaLVvyq1Vk+58zBbxOm2QDd9g==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      svelte: ^5.0.0-next
+
+  '@tanstack/table-core@9.0.0-alpha.8':
+    resolution: {integrity: sha512-sp4JWpwCp4+8bjxj9218bqXze+Q1JPfx72uUy5+/O+Cu4JwCgD+HQnN/OkBlcG/64aWHofXeGNpG5Me63lFtDQ==}
+    engines: {node: '>=12'}
+
   '@types/cookie@0.6.0':
     resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
 
@@ -954,8 +967,8 @@ packages:
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
 
-  electron-to-chromium@1.4.816:
-    resolution: {integrity: sha512-EKH5X5oqC6hLmiS7/vYtZHZFTNdhsYG5NVPRN6Yn0kQHNBlT59+xSM8HBy66P5fxWpKgZbPqb+diC64ng295Jw==}
+  electron-to-chromium@1.4.817:
+    resolution: {integrity: sha512-3znu+lZMIbTe8ZOs360OMJvVroVF2NpNI8T5jfLnDetVvj0uNmIucZzQVYMSJfsu9f47Ssox1Gt46PR+R+1JUg==}
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -2453,6 +2466,13 @@ snapshots:
       postcss-selector-parser: 6.0.10
       tailwindcss: 3.4.4
 
+  '@tanstack/svelte-table@9.0.0-alpha.9(svelte@5.0.0-next.172)':
+    dependencies:
+      '@tanstack/table-core': 9.0.0-alpha.8
+      svelte: 5.0.0-next.172
+
+  '@tanstack/table-core@9.0.0-alpha.8': {}
+
   '@types/cookie@0.6.0': {}
 
   '@types/eslint@8.56.10':
@@ -2662,7 +2682,7 @@ snapshots:
   browserslist@4.23.1:
     dependencies:
       caniuse-lite: 1.0.30001640
-      electron-to-chromium: 1.4.816
+      electron-to-chromium: 1.4.817
       node-releases: 2.0.14
       update-browserslist-db: 1.1.0(browserslist@4.23.1)
 
@@ -2752,7 +2772,7 @@ snapshots:
 
   eastasianwidth@0.2.0: {}
 
-  electron-to-chromium@1.4.816: {}
+  electron-to-chromium@1.4.817: {}
 
   emoji-regex@8.0.0: {}
 
