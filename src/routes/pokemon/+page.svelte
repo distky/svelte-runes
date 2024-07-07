@@ -13,6 +13,7 @@
 		createTable,
 		FlexRender,
 		getCoreRowModel,
+		getPaginationRowModel,
 		type ColumnDef,
 		type Table
 	} from '@tanstack/svelte-table';
@@ -20,9 +21,9 @@
 
 	let { data }: { data: PageData } = $props();
 
-	const { fetchData } = data;
+	const { fetchData } = $state(data);
 
-	let results = $state(fetchData.results);
+	let pagination = $state(fetchData);
 
 	const columns: ColumnDef<Pokemon>[] = $state([
 		{
@@ -42,15 +43,22 @@
 	let table: Table<Pokemon> = $derived(
 		createTable({
 			columns: columns,
-			data: results,
+			data: pagination.results,
+			getPaginationRowModel: getPaginationRowModel(),
+			manualPagination: true,
+			rowCount: fetchData.count,
+			state: {
+				pagination: {
+					pageIndex: 0,
+					pageSize: 10
+				}
+			},
 			getCoreRowModel: getCoreRowModel()
 		})
 	);
 
 	$effect(() => {
-		results = fetchData.results;
-		console.log(results);
-		console.log(table.getRowModel());
+		pagination.results = fetchData.results;
 	});
 </script>
 
@@ -106,6 +114,8 @@
 												context={header.getContext()}
 												content={header.column.columnDef.header}
 											></FlexRender>
+										{:else}
+											""
 										{/if}
 									</DataTable.Head>
 								{/each}
