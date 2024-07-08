@@ -30,7 +30,7 @@
 </script>
 
 <script lang="ts">
-	import { browser } from '$app/environment';
+	import { browser, dev } from '$app/environment';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Combobox from '$lib/components/ui/combobox/index.js';
 	import * as Form from '$lib/components/ui/form/index.js';
@@ -179,7 +179,7 @@
 			<Form.Button type="submit">Submit</Form.Button>
 		</form>
 
-		{#if browser}
+		{#if browser && dev}
 			<SuperDebug data={$formData} />
 		{/if}
 	</Card.Content>
