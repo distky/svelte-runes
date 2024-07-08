@@ -2,6 +2,7 @@
 	import { z } from 'zod';
 
 	const fruits = {
+		none: 'None',
 		mango: 'Mango',
 		watermelon: 'Watermelon',
 		apple: 'Apple',
@@ -12,15 +13,18 @@
 	type Fruit = keyof typeof fruits;
 
 	const fruitList = [
-		{ label: 'None', value: undefined, disabled: true },
 		...Object.entries(fruits).map(([value, label]) => {
 			return { label: label, value: value, disabled: false };
 		})
 	];
 
 	export const formSchema = z.object({
-		favoriteFruit: z.enum(Object.keys(fruits) as [Fruit, ...Fruit[]]),
-		defaultFruit: z.enum(Object.keys(fruits) as [Fruit, ...Fruit[]])
+		favoriteFruit: z.enum(
+			Object.keys(fruits).filter((value) => value !== 'none') as [Fruit, ...Fruit[]]
+		),
+		defaultFruit: z.enum(
+			Object.keys(fruits).filter((value) => value !== 'none') as [Fruit, ...Fruit[]]
+		)
 	});
 	export type FormSchema = typeof formSchema;
 </script>
@@ -57,10 +61,12 @@
 	let inputValue = $state('');
 	let touchedInput = $state(false);
 
+	let fruitsWithoutNone = fruitList.filter((fruit) => fruit.label !== 'None');
+
 	let filteredFruits = $derived(
 		inputValue && touchedInput
-			? fruitList.filter((fruit) => fruit.value?.includes(inputValue.toLowerCase()))
-			: fruitList
+			? fruitsWithoutNone.filter((fruit) => fruit.value.includes(inputValue.toLowerCase()))
+			: fruitsWithoutNone
 	);
 
 	let selectedFavoriteFruit: { label: string; value: string } | undefined = $state(undefined);
@@ -108,7 +114,6 @@
 						bind:inputValue
 						bind:touchedInput
 						bind:selected={selectedFavoriteFruit}
-						items={fruitList}
 						onSelectedChange={(selected) =>
 							selected?.value && ($favoriteFruitProxy = selected.value)}
 					>
@@ -146,7 +151,6 @@
 				<Form.Control let:attrs>
 					<Form.Label>Default Fruit</Form.Label>
 					<Select.Root
-						items={fruitList}
 						bind:open={openSelect}
 						bind:selected={selectedDefaultFruit}
 						onSelectedChange={(v) => v?.value && ($defaultFruitProxy = v.value)}
@@ -155,7 +159,7 @@
 							<Select.Value placeholder="Select a fruit" />
 						</Select.Trigger>
 						<Select.Content>
-							{#each fruitList as fruit}
+							{#each fruitsWithoutNone as fruit}
 								<Select.Item value={fruit.value} label={fruit.label} disabled={fruit.disabled} />
 							{/each}
 						</Select.Content>
