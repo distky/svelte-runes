@@ -15,8 +15,10 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
+	import { Toaster } from '$lib/components/ui/sonner';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { User } from 'lucide-svelte';
+	import { ModeWatcher } from 'mode-watcher';
 
 	let { children }: { children: any } = $props();
 </script>
@@ -222,4 +224,7 @@
 			{@render children()}
 		</main>
 	</div>
+
+	<Toaster position="top-right" />
+	<ModeWatcher defaultMode="light" />
 </div>

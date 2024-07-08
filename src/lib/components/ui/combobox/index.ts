@@ -20,11 +20,11 @@ export {
 	Separator,
 	HiddenInput,
 	//
-	Root as Select,
-	Group as SelectGroup,
-	Input as SelectInput,
-	Label as SelectLabel,
-	Item as SelectItem,
-	Content as SelectContent,
-	Separator as SelectSeparator
+	Root as Combobox,
+	Group as ComboboxGroup,
+	Input as ComboboxInput,
+	Label as ComboboxLabel,
+	Item as ComboboxItem,
+	Content as ComboboxContent,
+	Separator as ComboboxSeparator
 };
