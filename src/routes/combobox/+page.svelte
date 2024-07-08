@@ -1,19 +1,28 @@
 <script lang="ts" context="module">
 	import { z } from 'zod';
 
+	const fruits = {
+		mango: 'Mango',
+		watermelon: 'Watermelon',
+		apple: 'Apple',
+		pineapple: 'Pineapple',
+		orange: 'Orange'
+	} as const;
+
+	type Fruit = keyof typeof fruits;
+
+	const fruitList = [
+		{ label: 'None', value: undefined, disabled: true },
+		...Object.entries(fruits).map(([value, label]) => {
+			return { label: label, value: value, disabled: false };
+		})
+	];
+
 	export const formSchema = z.object({
-		favoriteFruit: z.string().min(2).max(50),
-		defaultFruit: z.string().min(2).max(50)
+		favoriteFruit: z.enum(Object.keys(fruits) as [Fruit, ...Fruit[]]),
+		defaultFruit: z.enum(Object.keys(fruits) as [Fruit, ...Fruit[]])
 	});
 	export type FormSchema = typeof formSchema;
-
-	const fruits = [
-		{ value: 'mango', label: 'Mango' },
-		{ value: 'watermelon', label: 'Watermelon' },
-		{ value: 'apple', label: 'Apple' },
-		{ value: 'pineapple', label: 'Pineapple' },
-		{ value: 'orange', label: 'Orange' }
-	];
 </script>
 
 <script lang="ts">
@@ -50,12 +59,12 @@
 
 	let filteredFruits = $derived(
 		inputValue && touchedInput
-			? fruits.filter((fruit) => fruit.value.includes(inputValue.toLowerCase()))
-			: fruits
+			? fruitList.filter((fruit) => fruit.value?.includes(inputValue.toLowerCase()))
+			: fruitList
 	);
 
-	let selectedFavoriteFruit: { value: string; label: string } | undefined = $state(undefined);
-	let selectedDefaultFruit: { value: string; label: string } | undefined = $state(undefined);
+	let selectedFavoriteFruit: { label: string; value: string } | undefined = $state(undefined);
+	let selectedDefaultFruit: { label: string; value: string } | undefined = $state(undefined);
 
 	const favoriteFruitProxy = stringProxy(form, 'favoriteFruit', {
 		taint: false,
@@ -87,8 +96,8 @@
 
 <Card.Root>
 	<Card.Header>
-		<Card.Title>Pokemon</Card.Title>
-		<Card.Description>View your pokemon.</Card.Description>
+		<Card.Title>Combobox Preview</Card.Title>
+		<Card.Description>Test your combobox.</Card.Description>
 	</Card.Header>
 	<Card.Content>
 		<form method="post" class="w-2/3 space-y-6" use:enhance>
@@ -99,8 +108,9 @@
 						bind:inputValue
 						bind:touchedInput
 						bind:selected={selectedFavoriteFruit}
-						items={fruits}
-						onSelectedChange={(selected) => selected && ($favoriteFruitProxy = selected.value)}
+						items={fruitList}
+						onSelectedChange={(selected) =>
+							selected?.value && ($favoriteFruitProxy = selected.value)}
 					>
 						<Combobox.Input
 							{...attrs}
@@ -114,7 +124,11 @@
 							<Combobox.Group>
 								<Combobox.Label>Fruits</Combobox.Label>
 								{#each filteredFruits as fruit (fruit.value)}
-									<Combobox.Item value={fruit.value} label={fruit.label} />
+									<Combobox.Item
+										value={fruit.value}
+										label={fruit.label}
+										disabled={fruit.disabled}
+									/>
 								{:else}
 									<span class="block px-5 py-2 text-sm text-muted-foreground">
 										No results found
@@ -132,17 +146,17 @@
 				<Form.Control let:attrs>
 					<Form.Label>Default Fruit</Form.Label>
 					<Select.Root
-						items={fruits}
+						items={fruitList}
 						bind:open={openSelect}
 						bind:selected={selectedDefaultFruit}
-						onSelectedChange={(v) => v && ($defaultFruitProxy = v.value)}
+						onSelectedChange={(v) => v?.value && ($defaultFruitProxy = v.value)}
 					>
 						<Select.Trigger {...attrs} class="w-[180px]">
 							<Select.Value placeholder="Select a fruit" />
 						</Select.Trigger>
 						<Select.Content>
-							{#each fruits as fruit}
-								<Select.Item value={fruit.value} label={fruit.label} />
+							{#each fruitList as fruit}
+								<Select.Item value={fruit.value} label={fruit.label} disabled={fruit.disabled} />
 							{/each}
 						</Select.Content>
 					</Select.Root>
