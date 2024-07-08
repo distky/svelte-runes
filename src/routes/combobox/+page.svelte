@@ -3,7 +3,7 @@
 
 	export const formSchema = z.object({
 		favoriteFruit: z.string().min(2).max(50),
-		defaultFruit: z.string()
+		defaultFruit: z.string().min(2).max(50)
 	});
 	export type FormSchema = typeof formSchema;
 
@@ -21,6 +21,7 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Combobox from '$lib/components/ui/combobox/index.js';
 	import * as Form from '$lib/components/ui/form/index.js';
+	import * as Select from '$lib/components/ui/select/index.js';
 	import { toast } from 'svelte-sonner';
 	import SuperDebug, { stringProxy, superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
@@ -53,9 +54,15 @@
 			: fruits
 	);
 
-	let selected: { value: string; label: string } | undefined = $state(undefined);
+	let selectedFavoriteFruit: { value: string; label: string } | undefined = $state(undefined);
+	let selectedDefaultFruit: { value: string; label: string } | undefined = $state(undefined);
 
 	const favoriteFruitProxy = stringProxy(form, 'favoriteFruit', {
+		taint: false,
+		empty: 'undefined'
+	});
+
+	const defaultFruitProxy = stringProxy(form, 'defaultFruit', {
 		taint: false,
 		empty: 'undefined'
 	});
@@ -63,9 +70,17 @@
 	$effect(() => {
 		if (!touchedInput) {
 			if (!$favoriteFruitProxy) {
-				selected = undefined;
+				selectedFavoriteFruit = undefined;
 			}
-			inputValue = selected?.label || '';
+			inputValue = selectedFavoriteFruit?.label || '';
+		}
+	});
+
+	let openSelect = $state(false);
+
+	$effect(() => {
+		if (!openSelect && !$defaultFruitProxy) {
+			selectedDefaultFruit = undefined;
 		}
 	});
 </script>
@@ -83,14 +98,9 @@
 					<Combobox.Root
 						bind:inputValue
 						bind:touchedInput
-						bind:selected
+						bind:selected={selectedFavoriteFruit}
 						items={fruits}
-						onSelectedChange={(selected) => {
-							if (selected) {
-								$favoriteFruitProxy = selected.value;
-							}
-							console.log('test');
-						}}
+						onSelectedChange={(selected) => selected && ($favoriteFruitProxy = selected.value)}
 					>
 						<Combobox.Input
 							{...attrs}
@@ -104,12 +114,7 @@
 							<Combobox.Group>
 								<Combobox.Label>Fruits</Combobox.Label>
 								{#each filteredFruits as fruit (fruit.value)}
-									<Combobox.Item
-										value={fruit.value}
-										label={fruit.label}
-										data-selected={false}
-										data-highlighted={false}
-									/>
+									<Combobox.Item value={fruit.value} label={fruit.label} />
 								{:else}
 									<span class="block px-5 py-2 text-sm text-muted-foreground">
 										No results found
@@ -120,24 +125,36 @@
 					</Combobox.Root>
 				</Form.Control>
 				<Form.Description>Please select your favorite fruit.</Form.Description>
+				<Form.FieldErrors />
 			</Form.Field>
+
+			<Form.Field {form} name="defaultFruit">
+				<Form.Control let:attrs>
+					<Form.Label>Default Fruit</Form.Label>
+					<Select.Root
+						items={fruits}
+						bind:open={openSelect}
+						bind:selected={selectedDefaultFruit}
+						onSelectedChange={(v) => v && ($defaultFruitProxy = v.value)}
+					>
+						<Select.Trigger {...attrs} class="w-[180px]">
+							<Select.Value placeholder="Select a fruit" />
+						</Select.Trigger>
+						<Select.Content>
+							{#each fruits as fruit}
+								<Select.Item value={fruit.value} label={fruit.label} />
+							{/each}
+						</Select.Content>
+					</Select.Root>
+					<input hidden bind:value={$defaultFruitProxy} name={attrs.name} />
+				</Form.Control>
+				<Form.Description>Please select your default fruit.</Form.Description>
+				<Form.FieldErrors />
+			</Form.Field>
+
 			<Form.Button type="submit">Submit</Form.Button>
 		</form>
 
-		<!-- <Select.Root portal={null}>
-			<Select.Trigger class="w-[180px]">
-				<Select.Value placeholder="Select a fruit" />
-			</Select.Trigger>
-			<Select.Content>
-				<Select.Group>
-					<Select.Label>Fruits</Select.Label>
-					{#each fruits as fruit}
-						<Select.Item value={fruit.value} label={fruit.label}>{fruit.label}</Select.Item>
-					{/each}
-				</Select.Group>
-			</Select.Content>
-			<Select.Input name="favoriteFruit" />
-		</Select.Root> -->
 		{#if browser}
 			<SuperDebug data={$formData} />
 		{/if}
