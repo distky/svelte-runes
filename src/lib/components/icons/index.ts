@@ -44,6 +44,7 @@ export { default as Trash } from 'phosphor-svelte/lib/Trash';
 export { default as UserCircle } from 'phosphor-svelte/lib/UserCircle';
 export { default as UserCirclePlus } from 'phosphor-svelte/lib/UserCirclePlus';
 export { default as X } from 'phosphor-svelte/lib/X';
+export { default as SpinnerGap } from 'phosphor-svelte/lib/SpinnerGap';
 
 export type IconProps = Partial<HTMLAttributes<SVGElement>> & {
 	class?: string;

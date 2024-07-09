@@ -35,6 +35,7 @@
 
 <script lang="ts">
 	import { browser, dev } from '$app/environment';
+	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Combobox from '$lib/components/ui/combobox/index.js';
 	import * as Form from '$lib/components/ui/form/index.js';
@@ -42,8 +43,7 @@
 	import { toast } from 'svelte-sonner';
 	import SuperDebug, { stringProxy, superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
-	import type { PageData } from './$types';
-	import Button from '$lib/components/ui/button/button.svelte';
+	import type { PageData } from '../combobox/$types';
 
 	let { data }: { data: PageData } = $props();
 
