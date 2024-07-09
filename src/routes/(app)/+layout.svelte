@@ -19,7 +19,7 @@
 	import { User } from 'lucide-svelte';
 	import { ModeWatcher } from 'mode-watcher';
 
-	let { children }: { children: any } = $props();
+	let { children } = $props();
 </script>
 
 <div class="flex min-h-screen w-full flex-col bg-muted/40">
