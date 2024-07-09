@@ -24,7 +24,11 @@
 		),
 		defaultFruit: z.enum(
 			Object.keys(fruits).filter((value) => value !== 'none') as [Fruit, ...Fruit[]]
-		)
+		),
+		multiFruits: z
+			.enum(Object.keys(fruits).filter((value) => value !== 'none') as [Fruit, ...Fruit[]])
+			.array()
+			.min(1)
 	});
 	export type FormSchema = typeof formSchema;
 </script>
@@ -39,6 +43,7 @@
 	import SuperDebug, { stringProxy, superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import type { PageData } from './$types';
+	import Button from '$lib/components/ui/button/button.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -46,6 +51,12 @@
 		superForm(data.form, {
 			validators: zodClient(formSchema),
 			resetForm: true,
+			onError: ({ result }) => {
+				console.log(result.status, result.type, result.error);
+			},
+			onUpdate({ result }) {
+				console.log(result.status, result.type, result.data);
+			},
 			onUpdated: ({ form: f }) => {
 				if (f.valid) {
 					toast.success(`You submitted ${JSON.stringify(f.data, null, 2)}`);
@@ -63,7 +74,10 @@
 	let inputValue = $state('');
 	let touchedInput = $state(false);
 
-	let fruitsWithoutNone = fruitList.filter((fruit) => fruit.label !== 'None');
+	let inputMultiValue = $state('');
+	let touchedMultiInput = $state(false);
+
+	let fruitsWithoutNone = $state(fruitList.filter((fruit) => fruit.label !== 'None'));
 
 	let filteredFruits = $derived(
 		inputValue && touchedInput
@@ -71,8 +85,15 @@
 			: fruitsWithoutNone
 	);
 
+	let filteredMultiFruits = $derived(
+		inputMultiValue && touchedMultiInput
+			? fruitsWithoutNone.filter((fruit) => fruit.value.includes(inputValue.toLowerCase()))
+			: fruitsWithoutNone
+	);
+
 	let selectedFavoriteFruit: { label: string; value: string } | undefined = $state(undefined);
 	let selectedDefaultFruit: { label: string; value: string } | undefined = $state(undefined);
+	let selectedMultiFruits: { label: string; value: Fruit }[] = $state([]);
 
 	const favoriteFruitProxy = stringProxy(form, 'favoriteFruit', {
 		taint: false,
@@ -84,21 +105,26 @@
 		empty: 'undefined'
 	});
 
+	let openSelect = $state(false);
+
 	$effect(() => {
 		if (!touchedInput) {
 			if (!$favoriteFruitProxy) {
 				selectedFavoriteFruit = undefined;
 			}
 			inputValue = selectedFavoriteFruit?.label || '';
+
+			console.log('test touchedInput');
 		}
-	});
 
-	let openSelect = $state(false);
-
-	$effect(() => {
 		if (!openSelect && !$defaultFruitProxy) {
 			selectedDefaultFruit = undefined;
-			console.log('test');
+			console.log('test openSelect');
+		}
+
+		if (!touchedMultiInput) {
+			console.log($formData.multiFruits);
+			console.log('test touchedMultiInput');
 		}
 	});
 </script>
@@ -176,7 +202,66 @@
 				<Form.FieldErrors />
 			</Form.Field>
 
+			<Form.Field {form} name="multiFruits">
+				<Form.Control let:attrs>
+					<Form.Label>Favorite Fruit</Form.Label>
+					<Combobox.Root
+						bind:inputValue={inputMultiValue}
+						bind:touchedInput={touchedMultiInput}
+						bind:selected={selectedMultiFruits}
+						multiple
+						onSelectedChange={(selected) => {
+							if (selected) {
+								let temp: Fruit[] = [];
+								selected.map(({ value }) => {
+									temp = [...temp, value];
+								});
+								$formData.multiFruits = temp;
+							}
+						}}
+					>
+						<Combobox.Input
+							{...attrs}
+							name={undefined}
+							class="w-[180px]"
+							placeholder="Search a fruit"
+							aria-label="Search a fruit"
+						/>
+						{#each $formData.multiFruits as multi}
+							<input hidden value={multi} name={attrs.name} />
+						{/each}
+						<Combobox.Content>
+							<Combobox.Group>
+								<Combobox.Label>Fruits</Combobox.Label>
+								{#each filteredMultiFruits as fruit (fruit.value)}
+									<Combobox.Item
+										value={fruit.value}
+										label={fruit.label}
+										disabled={fruit.disabled}
+									/>
+								{:else}
+									<span class="block px-5 py-2 text-sm text-muted-foreground">
+										No results found
+									</span>
+								{/each}
+							</Combobox.Group>
+						</Combobox.Content>
+					</Combobox.Root>
+				</Form.Control>
+				<Form.Description>Please select your favorite fruit.</Form.Description>
+				<Form.FieldErrors />
+			</Form.Field>
+
 			<Form.Button type="submit">Submit</Form.Button>
+			<Button
+				disabled={fruitsWithoutNone.filter((fruit) => fruit.value === 'test').length > 0}
+				on:click={() => {
+					fruitsWithoutNone = [
+						...fruitsWithoutNone,
+						{ label: 'Mango', value: 'test', disabled: false }
+					];
+				}}>Test</Button
+			>
 		</form>
 
 		{#if browser && dev}
