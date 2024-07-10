@@ -126,10 +126,9 @@
 						{#each table.getRowModel().rows as row}
 							<DataTable.Row>
 								{#each row.getVisibleCells() as cell}
-									<DataTable.Cell class="font-medium"
-										><FlexRender context={cell.getContext()} content={cell.column.columnDef.cell}
-										></FlexRender></DataTable.Cell
-									>
+									<DataTable.Cell class="font-medium">
+										<FlexRender context={cell.getContext()} content={cell.column.columnDef.cell} />
+									</DataTable.Cell>
 								{/each}
 							</DataTable.Row>
 						{/each}

@@ -62,6 +62,8 @@
 					toast.success(`You submitted ${JSON.stringify(f.data, null, 2)}`);
 					$favoriteFruitProxy = '';
 					$defaultFruitProxy = '';
+					$formData.multiFruits = [];
+					selectedMultiFruits = [];
 				} else {
 					toast.error('Please fix the errors in the form.');
 				}
