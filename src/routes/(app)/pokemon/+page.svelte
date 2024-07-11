@@ -1,9 +1,6 @@
 <script lang="ts">
-	import CirclePlus from 'lucide-svelte/icons/circle-plus';
-	import File from 'lucide-svelte/icons/file';
-	import ListFilter from 'lucide-svelte/icons/list-filter';
-	import type { PageData } from './$types';
-
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
@@ -17,13 +14,21 @@
 		type ColumnDef,
 		type Table
 	} from '@tanstack/svelte-table';
+	import CirclePlus from 'lucide-svelte/icons/circle-plus';
+	import File from 'lucide-svelte/icons/file';
+	import ListFilter from 'lucide-svelte/icons/list-filter';
+	import type { PageData } from './$types';
 	import type { Pokemon } from './schema';
 
 	let { data }: { data: PageData } = $props();
+	let { fetchData, pagination } = $state(data);
 
-	const { fetchData } = $state(data);
+	$effect(() => {
+		fetchData = data.fetchData;
+		pagination = data.pagination;
+	});
 
-	let pagination = $state(fetchData);
+	let pokemonPaginated = $derived(fetchData);
 
 	const columns: ColumnDef<Pokemon>[] = $state([
 		{
@@ -43,22 +48,24 @@
 	let table: Table<Pokemon> = $derived(
 		createTable({
 			columns: columns,
-			data: pagination.results,
+			data: pokemonPaginated.results,
+			getCoreRowModel: getCoreRowModel(),
 			getPaginationRowModel: getPaginationRowModel(),
 			manualPagination: true,
-			rowCount: fetchData.count,
+			rowCount: pokemonPaginated.count,
 			state: {
-				pagination: {
-					pageIndex: 0,
-					pageSize: 10
-				}
-			},
-			getCoreRowModel: getCoreRowModel()
+				pagination
+			}
 		})
 	);
 
-	$effect(() => {
-		pagination.results = fetchData.results;
+	const triggerRefetch = $derived((offset: number) => {
+		goto(`${$page.url.pathname}?limit=${pagination.pageSize}&offset=${offset}`, {
+			invalidateAll: true,
+			replaceState: true,
+			keepFocus: true,
+			noScroll: true
+		});
 	});
 </script>
 
@@ -136,8 +143,30 @@
 				</DataTable.Root>
 			</Card.Content>
 			<Card.Footer>
+				<div class="flex items-center justify-end space-x-4 py-4">
+					<Button
+						variant="outline"
+						size="sm"
+						on:click={() => {
+							triggerRefetch(pagination.pageIndex - pagination.pageSize);
+						}}
+						disabled={!pokemonPaginated.previous}>Previous</Button
+					>
+					<Button
+						variant="outline"
+						size="sm"
+						disabled={!pokemonPaginated.next}
+						on:click={() => {
+							triggerRefetch(pagination.pageIndex + pagination.pageSize);
+						}}>Next</Button
+					>
+				</div>
 				<div class="text-xs text-muted-foreground">
-					Showing <strong>1-10</strong> of <strong>32</strong> products
+					Showing <strong
+						>{pagination.pageIndex + 1}-{pagination.pageIndex + pagination.pageSize}</strong
+					>
+					of
+					<strong>{pokemonPaginated.count}</strong> pokemon
 				</div>
 			</Card.Footer>
 		</Card.Root>
