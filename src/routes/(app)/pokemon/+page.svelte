@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { SpinnerGap } from '$lib/components/icons';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
@@ -29,6 +30,10 @@
 	});
 
 	let pokemonPaginated = $derived(fetchData);
+	let isLoading = $state({
+		next: false,
+		prev: false
+	});
 
 	const columns: ColumnDef<Pokemon>[] = $state([
 		{
@@ -59,13 +64,15 @@
 		})
 	);
 
-	const triggerRefetch = $derived((offset: number) => {
-		goto(`${$page.url.pathname}?limit=${pagination.pageSize}&offset=${offset}`, {
+	const triggerRefetch = $derived(async (offset: number, type: 'next' | 'prev') => {
+		isLoading[type] = true;
+		await goto(`${$page.url.pathname}?limit=${pagination.pageSize}&offset=${offset}`, {
 			invalidateAll: true,
 			replaceState: true,
 			keepFocus: true,
 			noScroll: true
 		});
+		isLoading[type] = false;
 	});
 </script>
 
@@ -148,18 +155,28 @@
 						variant="outline"
 						size="sm"
 						on:click={() => {
-							triggerRefetch(pagination.pageIndex - pagination.pageSize);
+							triggerRefetch(pagination.pageIndex - pagination.pageSize, 'prev');
 						}}
-						disabled={!pokemonPaginated.previous}>Previous</Button
+						disabled={!pokemonPaginated.previous || isLoading.next || isLoading.prev}
 					>
+						Previous
+						{#if isLoading.prev}
+							<SpinnerGap class="ml-2 h-4 w-4 animate-spin" />
+						{/if}
+					</Button>
 					<Button
 						variant="outline"
 						size="sm"
-						disabled={!pokemonPaginated.next}
+						disabled={!pokemonPaginated.next || isLoading.prev || isLoading.next}
 						on:click={() => {
-							triggerRefetch(pagination.pageIndex + pagination.pageSize);
-						}}>Next</Button
+							triggerRefetch(pagination.pageIndex + pagination.pageSize, 'next');
+						}}
 					>
+						Next
+						{#if isLoading.next}
+							<SpinnerGap class="ml-2 h-4 w-4 animate-spin" />
+						{/if}
+					</Button>
 				</div>
 				<div class="text-xs text-muted-foreground">
 					Showing <strong
