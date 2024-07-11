@@ -64,7 +64,7 @@
 		})
 	);
 
-	const triggerRefetch = $derived(async (offset: number, type: 'next' | 'prev') => {
+	const onPaginate = $derived(async (offset: number, type: 'next' | 'prev') => {
 		isLoading[type] = true;
 		await goto(`${$page.url.pathname}?limit=${pagination.pageSize}&offset=${offset}`, {
 			invalidateAll: true,
@@ -155,7 +155,7 @@
 						variant="outline"
 						size="sm"
 						on:click={() => {
-							triggerRefetch(pagination.pageIndex - pagination.pageSize, 'prev');
+							onPaginate(pagination.pageIndex - pagination.pageSize, 'prev');
 						}}
 						disabled={!pokemonPaginated.previous || isLoading.next || isLoading.prev}
 					>
@@ -169,7 +169,7 @@
 						size="sm"
 						disabled={!pokemonPaginated.next || isLoading.prev || isLoading.next}
 						on:click={() => {
-							triggerRefetch(pagination.pageIndex + pagination.pageSize, 'next');
+							onPaginate(pagination.pageIndex + pagination.pageSize, 'next');
 						}}
 					>
 						Next
