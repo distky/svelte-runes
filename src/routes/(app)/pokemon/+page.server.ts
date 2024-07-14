@@ -14,7 +14,9 @@ export const load: PageServerLoad = async ({ fetch, url }) => {
 	};
 
 	return {
-		fetchData: data,
-		pagination
+		fetchData: {
+			data,
+			pagination
+		}
 	};
 };

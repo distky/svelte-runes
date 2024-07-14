@@ -12,6 +12,7 @@
 		FlexRender,
 		getCoreRowModel,
 		getPaginationRowModel,
+		renderComponent,
 		type ColumnDef,
 		type Table
 	} from '@tanstack/svelte-table';
@@ -20,16 +21,16 @@
 	import ListFilter from 'lucide-svelte/icons/list-filter';
 	import type { PageData } from './$types';
 	import type { Pokemon } from './schema';
+	import Cell from '$lib/components/Cell.svelte';
 
 	let { data }: { data: PageData } = $props();
-	let { fetchData, pagination } = $state(data);
+	let { data: pageData, pagination } = $state(data.fetchData);
 
 	$effect(() => {
-		fetchData = data.fetchData;
-		pagination = data.pagination;
+		pageData = data.fetchData.data;
+		pagination = data.fetchData.pagination;
 	});
 
-	let pokemonPaginated = $derived(fetchData);
 	let isLoading = $state({
 		next: false,
 		prev: false
@@ -45,7 +46,11 @@
 		{
 			accessorFn: (row) => row.url,
 			id: 'url',
-			cell: (info) => info.getValue(),
+			cell: (info) => {
+				return renderComponent(Cell, {
+					test: info.getValue<'url'>()
+				});
+			},
 			header: () => 'URL'
 		}
 	]);
@@ -53,11 +58,11 @@
 	let table: Table<Pokemon> = $derived(
 		createTable({
 			columns: columns,
-			data: pokemonPaginated.results,
+			data: pageData.results,
 			getCoreRowModel: getCoreRowModel(),
 			getPaginationRowModel: getPaginationRowModel(),
 			manualPagination: true,
-			rowCount: pokemonPaginated.count,
+			rowCount: pageData.count,
 			state: {
 				pagination
 			}
@@ -157,7 +162,7 @@
 						on:click={() => {
 							onPaginate(pagination.pageIndex - pagination.pageSize, 'prev');
 						}}
-						disabled={!pokemonPaginated.previous || isLoading.next || isLoading.prev}
+						disabled={!pageData.previous || isLoading.next || isLoading.prev}
 					>
 						Previous
 						{#if isLoading.prev}
@@ -167,7 +172,7 @@
 					<Button
 						variant="outline"
 						size="sm"
-						disabled={!pokemonPaginated.next || isLoading.prev || isLoading.next}
+						disabled={!pageData.next || isLoading.prev || isLoading.next}
 						on:click={() => {
 							onPaginate(pagination.pageIndex + pagination.pageSize, 'next');
 						}}
@@ -183,7 +188,7 @@
 						>{pagination.pageIndex + 1}-{pagination.pageIndex + pagination.pageSize}</strong
 					>
 					of
-					<strong>{pokemonPaginated.count}</strong> pokemon
+					<strong>{pageData.count}</strong> pokemon
 				</div>
 			</Card.Footer>
 		</Card.Root>
