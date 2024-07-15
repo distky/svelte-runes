@@ -27,11 +27,11 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1(svelte@5.0.0-next.184)(sveltekit-superforms@2.16.0(@sveltejs/kit@2.5.18(@sveltejs/vite-plugin-svelte@3.1.1(svelte@5.0.0-next.184)(vite@5.3.3))(svelte@5.0.0-next.184)(vite@5.3.3))(svelte@5.0.0-next.184))
       lucide-svelte:
-        specifier: ^0.399.0
-        version: 0.399.0(svelte@5.0.0-next.184)
+        specifier: ^0.408.0
+        version: 0.408.0(svelte@5.0.0-next.184)
       mode-watcher:
-        specifier: ^0.3.1
-        version: 0.3.1(svelte@5.0.0-next.184)
+        specifier: ^0.4.0
+        version: 0.4.0(svelte@5.0.0-next.184)
       svelte-sonner:
         specifier: ^0.3.27
         version: 0.3.27(svelte@5.0.0-next.184)
@@ -43,7 +43,7 @@ importers:
         version: 2.4.0
       tailwind-variants:
         specifier: ^0.2.1
-        version: 0.2.1(tailwindcss@3.4.4)
+        version: 0.2.1(tailwindcss@3.4.5)
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -62,7 +62,7 @@ importers:
         version: 3.1.1(svelte@5.0.0-next.184)(vite@5.3.3)
       '@tailwindcss/typography':
         specifier: ^0.5.13
-        version: 0.5.13(tailwindcss@3.4.4)
+        version: 0.5.13(tailwindcss@3.4.5)
       '@types/eslint':
         specifier: ^8.56.10
         version: 8.56.10
@@ -106,8 +106,8 @@ importers:
         specifier: ^0.18.2
         version: 0.18.2(svelte@5.0.0-next.184)
       tailwindcss:
-        specifier: ^3.4.4
-        version: 3.4.4
+        specifier: ^3.4.5
+        version: 3.4.5
       tslib:
         specifier: ^2.6.3
         version: 2.6.3
@@ -1468,8 +1468,8 @@ packages:
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
 
-  lucide-svelte@0.399.0:
-    resolution: {integrity: sha512-NQ8AxNMKbIJsx7HV//gnAsIY1wJfb3rbXSK2S/ZDjIldvAEdzGngpUT8T8Q8zHYUuii0bavAmVARN8giR4vvpA==}
+  lucide-svelte@0.408.0:
+    resolution: {integrity: sha512-5rJvcnHvE+K/2ebff/tKvG1FmIut01hDUaibMk6pG2Je+82TCPflVvhMvgCjP0fkM0ztj5t/ma1s5WYyketOSA==}
     peerDependencies:
       svelte: ^3 || ^4 || ^5.0.0-next.42
 
@@ -1509,8 +1509,8 @@ packages:
     resolution: {integrity: sha512-FP+p8RB8OWpF3YZBCrP5gtADmtXApB5AMLn+vdyA+PyxCjrCs00mjyUozssO33cwDeT3wNGdLxJ5M//YqtHAJw==}
     hasBin: true
 
-  mode-watcher@0.3.1:
-    resolution: {integrity: sha512-inghSVSXpEENV0SHM98+AvjDmTOjh9EJIrJXMScK42GNkDm5QJL7a/nZQ8M8i8RK7loFHqsQKBKdlXfw5e5C4w==}
+  mode-watcher@0.4.0:
+    resolution: {integrity: sha512-zuHYgY7Cq4NAB1JHj0NpxTKfx6RMH3A2yAoDfjF1UTaIbgWzRyCQRcK/uE9EuVt2PqAGZZbqxRC0h9eB1hfyJQ==}
     peerDependencies:
       svelte: ^4.0.0 || ^5.0.0-next.1
 
@@ -2023,8 +2023,8 @@ packages:
     peerDependencies:
       tailwindcss: '*'
 
-  tailwindcss@3.4.4:
-    resolution: {integrity: sha512-ZoyXOdJjISB7/BcLTR6SEsLgKtDStYyYZVLsUtWChO4Ps20CBad7lfJKVDiejocV4ME1hLmyY0WJE3hSDcmQ2A==}
+  tailwindcss@3.4.5:
+    resolution: {integrity: sha512-DlTxttYcogpDfx3tf/8jfnma1nfAYi2cBUYV2YNoPPecwmO3YGiFlOX9D8tGAu+EDF38ryBzvrDKU/BLMsUwbw==}
     engines: {node: '>=14.0.0'}
     hasBin: true
 
@@ -2721,13 +2721,13 @@ snapshots:
     dependencies:
       tslib: 2.6.3
 
-  '@tailwindcss/typography@0.5.13(tailwindcss@3.4.4)':
+  '@tailwindcss/typography@0.5.13(tailwindcss@3.4.5)':
     dependencies:
       lodash.castarray: 4.4.0
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       postcss-selector-parser: 6.0.10
-      tailwindcss: 3.4.4
+      tailwindcss: 3.4.5
 
   '@tanstack/svelte-table@9.0.0-alpha.10(svelte@5.0.0-next.184)':
     dependencies:
@@ -3465,7 +3465,7 @@ snapshots:
 
   lru-cache@10.4.3: {}
 
-  lucide-svelte@0.399.0(svelte@5.0.0-next.184):
+  lucide-svelte@0.408.0(svelte@5.0.0-next.184):
     dependencies:
       svelte: 5.0.0-next.184
 
@@ -3500,7 +3500,7 @@ snapshots:
     dependencies:
       minimist: 1.2.8
 
-  mode-watcher@0.3.1(svelte@5.0.0-next.184):
+  mode-watcher@0.4.0(svelte@5.0.0-next.184):
     dependencies:
       svelte: 5.0.0-next.184
 
@@ -3963,12 +3963,12 @@ snapshots:
 
   tailwind-merge@2.4.0: {}
 
-  tailwind-variants@0.2.1(tailwindcss@3.4.4):
+  tailwind-variants@0.2.1(tailwindcss@3.4.5):
     dependencies:
       tailwind-merge: 2.4.0
-      tailwindcss: 3.4.4
+      tailwindcss: 3.4.5
 
-  tailwindcss@3.4.4:
+  tailwindcss@3.4.5:
     dependencies:
       '@alloc/quick-lru': 5.2.0
       arg: 5.0.2
