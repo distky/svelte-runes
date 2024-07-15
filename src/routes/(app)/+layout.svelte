@@ -9,6 +9,7 @@
 	import ShoppingCart from 'lucide-svelte/icons/shopping-cart';
 	import UsersRound from 'lucide-svelte/icons/users-round';
 
+	import { Moon, Sun } from '$lib/components/icons/index.js';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
@@ -17,7 +18,7 @@
 	import { Toaster } from '$lib/components/ui/sonner';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { User } from 'lucide-svelte';
-	import { ModeWatcher } from 'mode-watcher';
+	import { ModeWatcher, toggleMode } from 'mode-watcher';
 
 	let { children } = $props();
 </script>
@@ -214,6 +215,17 @@
 					<DropdownMenu.Separator />
 					<DropdownMenu.Item>Settings</DropdownMenu.Item>
 					<DropdownMenu.Item>Support</DropdownMenu.Item>
+					<DropdownMenu.Item on:click={toggleMode}>
+						Switch Theme:
+						<div>
+							<Sun
+								class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:hidden dark:-rotate-90 dark:scale-0"
+							/>
+							<Moon
+								class="hidden h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:block dark:rotate-0 dark:scale-100"
+							/>
+						</div>
+					</DropdownMenu.Item>
 					<DropdownMenu.Separator />
 					<DropdownMenu.Item>Logout</DropdownMenu.Item>
 				</DropdownMenu.Content>
