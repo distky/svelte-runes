@@ -18,14 +18,7 @@ export default function createTableState(
 ) {
 	let results = $state(data);
 	let count = $state(dataCount ?? 0);
-	let pagination = $state(
-		paginationState || {
-			pageIndex: 0,
-			pageSize: 0,
-			hasNext: false,
-			hasPrevious: false
-		}
-	);
+	let pagination = $state(paginationState);
 	let isLoading = $state({
 		next: false,
 		prev: false
