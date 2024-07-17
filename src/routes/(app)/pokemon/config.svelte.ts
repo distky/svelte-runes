@@ -1,3 +1,4 @@
+import { goto } from '$app/navigation';
 import Cell from '$lib/components/Cell.svelte';
 import {
 	createTable,
@@ -5,22 +6,24 @@ import {
 	getPaginationRowModel,
 	renderComponent,
 	type ColumnDef,
-	type PaginationState
+	type PaginationState,
+	type Table
 } from '@tanstack/svelte-table';
 import type { Pokemon } from './schema';
-import { goto } from '$app/navigation';
 
 export default function createTableState(
 	data: Pokemon[],
 	dataCount: number,
-	paginationState: PaginationState
+	paginationState: PaginationState & { hasNext: boolean; hasPrevious: boolean }
 ) {
 	let results = $state(data);
 	let count = $state(dataCount ?? 0);
 	let pagination = $state(
 		paginationState || {
 			pageIndex: 0,
-			pageSize: 0
+			pageSize: 0,
+			hasNext: false,
+			hasPrevious: false
 		}
 	);
 	let isLoading = $state({
@@ -58,7 +61,7 @@ export default function createTableState(
 		}
 	]);
 
-	const tableConfig = $derived(
+	const tableConfig: Table<Pokemon> = $derived(
 		createTable({
 			columns: columns,
 			data: results,
@@ -76,20 +79,24 @@ export default function createTableState(
 		get table() {
 			return tableConfig;
 		},
-		set data(data: Pokemon[]) {
+		set updateTable({
+			data,
+			dataCount,
+			paginationState
+		}: {
+			data: Pokemon[];
+			dataCount: number;
+			paginationState: PaginationState & { hasNext: boolean; hasPrevious: boolean };
+		}) {
 			results = data;
+			count = dataCount;
+			pagination = paginationState;
 		},
 		get dataCount() {
 			return dataCount;
 		},
-		set dataCount(dataCount: number) {
-			count = dataCount;
-		},
 		get pagination() {
 			return pagination;
-		},
-		set pagination(paginationState: PaginationState) {
-			pagination = paginationState;
 		},
 		get isLoading() {
 			return isLoading;

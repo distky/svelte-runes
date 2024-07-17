@@ -16,6 +16,7 @@
 	import type { Pokemon } from './schema';
 
 	let { data }: { data: PageData } = $props();
+	let currentUrl = $page.url.pathname;
 	let tableState = createTableState(
 		data.fetchData.paginationData.results,
 		data.fetchData.paginationData.count,
@@ -23,9 +24,11 @@
 	);
 
 	$effect(() => {
-		tableState.pagination = data.fetchData.paginationState;
-		tableState.data = data.fetchData.paginationData.results;
-		tableState.dataCount = data.fetchData.paginationData.count;
+		tableState.updateTable = {
+			paginationState: data.fetchData.paginationState,
+			data: data.fetchData.paginationData.results,
+			dataCount: data.fetchData.paginationData.count
+		};
 	});
 </script>
 
@@ -81,10 +84,10 @@
 							tableState.onPaginate(
 								tableState.pagination.pageIndex - tableState.pagination.pageSize,
 								'prev',
-								$page.url.pathname
+								currentUrl
 							);
 						}}
-						disabled={!data.fetchData.paginationData.previous ||
+						disabled={!tableState.pagination.hasPrevious ||
 							tableState.isLoading.next ||
 							tableState.isLoading.prev}
 					>
@@ -96,14 +99,14 @@
 					<Button
 						variant="outline"
 						size="sm"
-						disabled={!data.fetchData.paginationData.next ||
+						disabled={!tableState.pagination.hasNext ||
 							tableState.isLoading.prev ||
 							tableState.isLoading.next}
 						on:click={() => {
 							tableState.onPaginate(
 								tableState.pagination.pageIndex + tableState.pagination.pageSize,
 								'next',
-								$page.url.pathname
+								currentUrl
 							);
 						}}
 					>
