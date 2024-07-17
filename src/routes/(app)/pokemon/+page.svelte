@@ -1,71 +1,34 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { SpinnerGap } from '$lib/components/icons';
+	import DataTable from '$lib/components/page/data-table/data-table.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import * as DataTable from '$lib/components/ui/table/index.js';
+	import * as Table from '$lib/components/ui/table/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import {
-		createTable,
-		FlexRender,
-		getCoreRowModel,
-		getPaginationRowModel,
-		type ColumnDef,
-		type Table
-	} from '@tanstack/svelte-table';
+	import { FlexRender, type Table as SvelteTable } from '@tanstack/svelte-table';
 	import CirclePlus from 'lucide-svelte/icons/circle-plus';
 	import File from 'lucide-svelte/icons/file';
 	import ListFilter from 'lucide-svelte/icons/list-filter';
 	import type { PageData } from './$types';
+	import createTableState from './config.svelte';
 	import type { Pokemon } from './schema';
 
 	let { data }: { data: PageData } = $props();
-	let { fetchData, pagination } = $state(data);
-
-	$effect(() => {
-		fetchData = data.fetchData;
-		pagination = data.pagination;
-	});
-
-	let pokemonPaginated = $derived(fetchData);
-
-	const columns: ColumnDef<Pokemon>[] = $state([
-		{
-			id: 'name',
-			accessorFn: (row) => row.name,
-			cell: (info) => info.getValue(),
-			header: () => 'Name'
-		},
-		{
-			accessorFn: (row) => row.url,
-			id: 'url',
-			cell: (info) => info.getValue(),
-			header: () => 'URL'
-		}
-	]);
-
-	let table: Table<Pokemon> = $derived(
-		createTable({
-			columns: columns,
-			data: pokemonPaginated.results,
-			getCoreRowModel: getCoreRowModel(),
-			getPaginationRowModel: getPaginationRowModel(),
-			manualPagination: true,
-			rowCount: pokemonPaginated.count,
-			state: {
-				pagination
-			}
-		})
+	let currentUrl = $page.url.pathname;
+	let tableState = createTableState(
+		data.fetchData.paginationData.results,
+		data.fetchData.paginationData.count,
+		data.fetchData.paginationState
 	);
 
-	const triggerRefetch = $derived((offset: number) => {
-		goto(`${$page.url.pathname}?limit=${pagination.pageSize}&offset=${offset}`, {
-			invalidateAll: true,
-			replaceState: true,
-			keepFocus: true,
-			noScroll: true
-		});
+	$effect(() => {
+		tableState.updateTable = {
+			paginationState: data.fetchData.paginationState,
+			data: data.fetchData.paginationData.results,
+			dataCount: data.fetchData.paginationData.count
+		};
 	});
 </script>
 
@@ -110,37 +73,7 @@
 				<Card.Description>View your pokemon.</Card.Description>
 			</Card.Header>
 			<Card.Content>
-				<DataTable.Root>
-					<DataTable.Header>
-						{#each table.getHeaderGroups() as headerGroup}
-							<DataTable.Row>
-								{#each headerGroup.headers as header}
-									<DataTable.Head>
-										{#if !header.isPlaceholder}
-											<FlexRender
-												context={header.getContext()}
-												content={header.column.columnDef.header}
-											></FlexRender>
-										{:else}
-											""
-										{/if}
-									</DataTable.Head>
-								{/each}
-							</DataTable.Row>
-						{/each}
-					</DataTable.Header>
-					<DataTable.Body>
-						{#each table.getRowModel().rows as row}
-							<DataTable.Row>
-								{#each row.getVisibleCells() as cell}
-									<DataTable.Cell class="font-medium">
-										<FlexRender context={cell.getContext()} content={cell.column.columnDef.cell} />
-									</DataTable.Cell>
-								{/each}
-							</DataTable.Row>
-						{/each}
-					</DataTable.Body>
-				</DataTable.Root>
+				<DataTable table={tableState.table} {tableHeader} {tableRow}></DataTable>
 			</Card.Content>
 			<Card.Footer>
 				<div class="flex items-center justify-end space-x-4 py-4">
@@ -148,27 +81,79 @@
 						variant="outline"
 						size="sm"
 						on:click={() => {
-							triggerRefetch(pagination.pageIndex - pagination.pageSize);
+							tableState.onPaginate(
+								tableState.pagination.pageIndex - tableState.pagination.pageSize,
+								'prev',
+								currentUrl
+							);
 						}}
-						disabled={!pokemonPaginated.previous}>Previous</Button
+						disabled={!tableState.pagination.hasPrevious ||
+							tableState.isLoading.next ||
+							tableState.isLoading.prev}
 					>
+						Previous
+						{#if tableState.isLoading.prev}
+							<SpinnerGap class="ml-2 h-4 w-4 animate-spin" />
+						{/if}
+					</Button>
 					<Button
 						variant="outline"
 						size="sm"
-						disabled={!pokemonPaginated.next}
+						disabled={!tableState.pagination.hasNext ||
+							tableState.isLoading.prev ||
+							tableState.isLoading.next}
 						on:click={() => {
-							triggerRefetch(pagination.pageIndex + pagination.pageSize);
-						}}>Next</Button
+							tableState.onPaginate(
+								tableState.pagination.pageIndex + tableState.pagination.pageSize,
+								'next',
+								currentUrl
+							);
+						}}
 					>
+						Next
+						{#if tableState.isLoading.next}
+							<SpinnerGap class="ml-2 h-4 w-4 animate-spin" />
+						{/if}
+					</Button>
 				</div>
 				<div class="text-xs text-muted-foreground">
 					Showing <strong
-						>{pagination.pageIndex + 1}-{pagination.pageIndex + pagination.pageSize}</strong
+						>{tableState.pagination.pageIndex + 1}-{tableState.pagination.pageIndex +
+							tableState.pagination.pageSize}</strong
 					>
 					of
-					<strong>{pokemonPaginated.count}</strong> pokemon
+					<strong>{tableState.dataCount}</strong> pokemon
 				</div>
 			</Card.Footer>
 		</Card.Root>
 	</Tabs.Content>
 </Tabs.Root>
+
+{#snippet tableHeader(table: SvelteTable<Pokemon>)}
+	{#each table.getHeaderGroups() as headerGroup}
+		<Table.Row>
+			{#each headerGroup.headers as header}
+				<Table.Head>
+					{#if !header.isPlaceholder}
+						<FlexRender context={header.getContext()} content={header.column.columnDef.header}
+						></FlexRender>
+					{:else}
+						""
+					{/if}
+				</Table.Head>
+			{/each}
+		</Table.Row>
+	{/each}
+{/snippet}
+
+{#snippet tableRow(table: SvelteTable<Pokemon>)}
+	{#each table.getRowModel().rows as row}
+		<Table.Row>
+			{#each row.getVisibleCells() as cell}
+				<Table.Cell class="font-medium">
+					<FlexRender context={cell.getContext()} content={cell.column.columnDef.cell} />
+				</Table.Cell>
+			{/each}
+		</Table.Row>
+	{/each}
+{/snippet}

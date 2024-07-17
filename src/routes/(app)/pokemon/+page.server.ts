@@ -8,13 +8,17 @@ export const load: PageServerLoad = async ({ fetch, url }) => {
 	const response = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`);
 
 	const data: Placeholder = placeholderSchema.parse(await response.json());
-	const pagination: PaginationState = {
+	const pagination: PaginationState & { hasNext: boolean; hasPrevious: boolean } = {
 		pageIndex: offset,
-		pageSize: limit
+		pageSize: limit,
+		hasNext: data.next != null,
+		hasPrevious: data.previous != null
 	};
 
 	return {
-		fetchData: data,
-		pagination
+		fetchData: {
+			paginationData: data,
+			paginationState: pagination
+		}
 	};
 };

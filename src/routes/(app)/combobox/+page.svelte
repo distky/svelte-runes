@@ -44,6 +44,7 @@
 	import SuperDebug, { stringProxy, superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import type { PageData } from '../combobox/$types';
+	import { Toaster } from '$lib/components/ui/sonner';
 
 	let { data }: { data: PageData } = $props();
 
@@ -271,3 +272,4 @@
 		{/if}
 	</Card.Content>
 </Card.Root>
+<Toaster position="top-right" />
