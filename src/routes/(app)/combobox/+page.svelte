@@ -28,23 +28,26 @@
 		multiFruits: z
 			.enum(Object.keys(fruits).filter((value) => value !== 'none') as [Fruit, ...Fruit[]])
 			.array()
-			.min(1)
+			.min(1),
+		testString: z.string().min(1).max(5)
 	});
 	export type FormSchema = typeof formSchema;
 </script>
 
 <script lang="ts">
 	import { browser, dev } from '$app/environment';
+	import { CaretDown, X } from '$lib/components/icons/index.js';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Combobox from '$lib/components/ui/combobox/index.js';
 	import * as Form from '$lib/components/ui/form/index.js';
+	import Input from '$lib/components/ui/input/input.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
+	import { Toaster } from '$lib/components/ui/sonner';
 	import { toast } from 'svelte-sonner';
 	import SuperDebug, { stringProxy, superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import type { PageData } from '../combobox/$types';
-	import { Toaster } from '$lib/components/ui/sonner';
 
 	let { data }: { data: PageData } = $props();
 
@@ -90,7 +93,7 @@
 
 	let filteredMultiFruits = $derived(
 		inputMultiValue && touchedMultiInput
-			? fruitsWithoutNone.filter((fruit) => fruit.value.includes(inputValue.toLowerCase()))
+			? fruitsWithoutNone.filter((fruit) => fruit.value.includes(inputMultiValue.toLowerCase()))
 			: fruitsWithoutNone
 	);
 
@@ -149,13 +152,12 @@
 							bind:selected={selectedFavoriteFruit}
 							onSelectedChange={(selected) => selected && ($favoriteFruitProxy = selected.value)}
 						>
-							<Combobox.Input
-								{...attrs}
-								name={undefined}
-								class="w-[180px]"
-								placeholder="Search a fruit"
-								aria-label="Search a fruit"
-							/>
+							<div class="relative w-[180px]">
+								<CaretDown
+									class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 transform opacity-50"
+								/>
+								<Combobox.Input {...attrs} name={undefined} />
+							</div>
 							<Combobox.HiddenInput bind:value={$favoriteFruitProxy} name={attrs.name} />
 							<Combobox.Content>
 								<Combobox.Group>
@@ -223,13 +225,40 @@
 							}
 						}}
 					>
-						<Combobox.Input
-							{...attrs}
-							name={undefined}
-							class="w-[180px]"
-							placeholder="Search a fruit"
-							aria-label="Search a fruit"
-						/>
+						<div
+							class="relative flex w-full flex-row gap-2.5 rounded-md border border-input bg-background px-3 py-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
+						>
+							{#each selectedMultiFruits as selectedFruits}
+								<div class="flex items-center overflow-hidden rounded-md [word-break:break-word]">
+									<span class="flex items-center border-r border-border/10 px-1.5"
+										>{selectedFruits.label}</span
+									>
+									<button class="flex h-full items-center px-1">
+										<X class="size-3" />
+									</button>
+								</div>
+							{/each}
+							<CaretDown
+								class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 transform opacity-50"
+							/>
+							<Combobox.Input
+								{...attrs}
+								name={undefined}
+								class="min-w-[4.5rem] grow basis-0 border-0 outline-none focus:!ring-0 focus-visible:ring-transparent"
+							/>
+						</div>
+						<!-- <div
+							class="flex h-10 w-full min-w-[280px] flex-row flex-wrap gap-2.5 rounded-md border border-input bg-background px-3 py-2 text-sm text-primary-foreground ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-within:ring focus-within:ring-ring focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+    disabled:cursor-not-allowed disabled:opacity-50"
+						>
+							<ComboboxPrimitive.Input
+								{...attrs}
+								name={undefined}
+								type="text"
+								placeholder="Enter tags..."
+								class="min-w-[4.5rem] shrink grow basis-0 border-0 text-black outline-none focus:!ring-0"
+							/>
+						</div> -->
 						{#each $formData.multiFruits as multi}
 							<input hidden value={multi} name={attrs.name} />
 						{/each}
@@ -253,6 +282,13 @@
 				</Form.Control>
 				<Form.Description>Please select your favorite fruit.</Form.Description>
 				<Form.FieldErrors />
+			</Form.Field>
+
+			<Form.Field {form} name="testString">
+				<Form.Control let:attrs>
+					<Form.Label>Test</Form.Label>
+					<Input {...attrs} type="text" />
+				</Form.Control>
 			</Form.Field>
 
 			<Form.Button type="submit">Submit</Form.Button>
