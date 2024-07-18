@@ -226,7 +226,7 @@
 						}}
 					>
 						<div
-							class="relative flex w-full flex-row gap-2.5 rounded-md border border-input bg-background px-3 py-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
+							class="relative flex w-full flex-row flex-wrap gap-2.5 rounded-md border border-input bg-background px-3 py-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
 						>
 							{#each selectedMultiFruits as selectedFruits}
 								<div class="flex items-center overflow-hidden rounded-md [word-break:break-word]">
