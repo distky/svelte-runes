@@ -23,10 +23,15 @@ export default function createTableState(
 		next: false,
 		prev: false
 	});
+	let globalFilter = $state('');
 
 	const onPaginate = $derived(async (offset: number, type: 'next' | 'prev', pageUrl: string) => {
 		isLoading = { ...isLoading, [type]: true };
-		await goto(`${pageUrl}?limit=${pagination.pageSize}&offset=${offset}`, {
+		pagination = {
+			...pagination,
+			pageIndex: offset
+		};
+		await goto(`${pageUrl}?limit=${pagination.pageSize}&offset=${offset}&filter=${globalFilter}`, {
 			replaceState: true,
 			keepFocus: true,
 			noScroll: true
@@ -68,6 +73,24 @@ export default function createTableState(
 		})
 	);
 
+	const handleServerSideFilter = $derived(
+		async (
+			e: KeyboardEvent & { currentTarget: EventTarget & HTMLInputElement },
+			pageUrl: string
+		) => {
+			globalFilter = e.currentTarget.value;
+			console.log(pagination);
+			await goto(
+				`${pageUrl}?limit=${pagination.pageSize}&offset=${pagination.pageIndex}&filter=${globalFilter}`,
+				{
+					replaceState: true,
+					keepFocus: true,
+					noScroll: true
+				}
+			);
+		}
+	);
+
 	return {
 		get table() {
 			return tableConfig;
@@ -96,6 +119,9 @@ export default function createTableState(
 		},
 		get onPaginate() {
 			return onPaginate;
+		},
+		get handleServerSideFilter() {
+			return handleServerSideFilter;
 		}
 	};
 }
