@@ -1,12 +1,13 @@
 <script lang="ts">
+	import ChartLine from 'lucide-svelte/icons/chart-line';
 	import Home from 'lucide-svelte/icons/house';
-	import LineChart from 'lucide-svelte/icons/line-chart';
 	import Package from 'lucide-svelte/icons/package';
 	import Package2 from 'lucide-svelte/icons/package-2';
 	import PanelLeft from 'lucide-svelte/icons/panel-left';
 	import Search from 'lucide-svelte/icons/search';
 	import Settings from 'lucide-svelte/icons/settings';
 	import ShoppingCart from 'lucide-svelte/icons/shopping-cart';
+	import User from 'lucide-svelte/icons/user';
 	import UsersRound from 'lucide-svelte/icons/users-round';
 
 	import { Moon, Sun } from '$lib/components/icons/index.js';
@@ -16,7 +17,6 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
-	import { User } from 'lucide-svelte';
 	import { toggleMode } from 'mode-watcher';
 
 	let { children } = $props();
@@ -96,7 +96,7 @@
 						use:builder.action
 						{...builder}
 					>
-						<LineChart class="h-5 w-5" />
+						<ChartLine class="h-5 w-5" />
 						<span class="sr-only">Analytics</span>
 					</a>
 				</Tooltip.Trigger>
@@ -169,7 +169,7 @@
 							href="##"
 							class="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
 						>
-							<LineChart class="h-5 w-5" />
+							<ChartLine class="h-5 w-5" />
 							Settings
 						</a>
 					</nav>

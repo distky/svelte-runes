@@ -27,11 +27,11 @@ export default function createTableState(
 	const onPaginate = $derived(async (offset: number, type: 'next' | 'prev', pageUrl: string) => {
 		isLoading = { ...isLoading, [type]: true };
 		await goto(`${pageUrl}?limit=${pagination.pageSize}&offset=${offset}`, {
-			invalidateAll: true,
 			replaceState: true,
 			keepFocus: true,
 			noScroll: true
 		});
+
 		isLoading = { ...isLoading, [type]: false };
 	});
 

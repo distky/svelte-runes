@@ -1,4 +1,5 @@
 <script lang="ts" generics="T">
+	import { browser } from '$app/environment';
 	import * as DataTable from '$lib/components/ui/table';
 	import { FlexRender, type Table } from '@tanstack/svelte-table';
 	import type { Snippet } from 'svelte';
@@ -13,7 +14,7 @@
 
 <DataTable.Root>
 	<DataTable.Header>
-		{#if tableHeader}
+		{#if tableHeader && browser}
 			{@render tableHeader(table)}
 		{:else}
 			{#each table.getHeaderGroups() as headerGroup}
@@ -33,7 +34,7 @@
 		{/if}
 	</DataTable.Header>
 	<DataTable.Body>
-		{#if tableRow}
+		{#if tableRow && browser}
 			{@render tableRow(table)}
 		{:else}
 			{#each table.getRowModel().rows as row}
