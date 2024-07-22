@@ -79,7 +79,6 @@ export default function createTableState(
 			pageUrl: string
 		) => {
 			globalFilter = e.currentTarget.value;
-			console.log(pagination);
 			await goto(
 				`${pageUrl}?limit=${pagination.pageSize}&offset=${pagination.pageIndex}&filter=${globalFilter}`,
 				{
