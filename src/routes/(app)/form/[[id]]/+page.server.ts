@@ -7,7 +7,7 @@ import { fail, redirect, type Actions } from '@sveltejs/kit';
 const postSchema = z.object({
 	id: z.number(),
 	title: z.string(),
-	body: z.string().min(1),
+	body: z.string().min(5),
 	userId: z.number()
 });
 

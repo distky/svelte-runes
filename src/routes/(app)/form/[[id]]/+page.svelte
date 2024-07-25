@@ -4,18 +4,28 @@
 	import * as Card from '$lib/components/ui/card';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import { superForm } from 'sveltekit-superforms';
+	import SuperDebug, { superForm } from 'sveltekit-superforms';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
-	const { form, enhance, errors, message, constraints, delayed } = superForm(data.post);
+	const { form, enhance, errors, message, constraints, delayed } = superForm(data.post, {
+		resetForm: false
+	});
 
-	const formData = $derived($form);
-	const errorsData = $derived($errors);
-	const messageData = $derived($message);
-	const delayedState = $derived($delayed);
-	const constraintsData = $derived($constraints);
+	let formData = $state($form);
+	let errorsData = $state($errors);
+	let messageData = $state($message);
+	let delayedState = $state($delayed);
+	let constraintsData = $state($constraints);
+
+	$effect(() => {
+		formData = $form;
+		errorsData = $errors;
+		messageData = $message;
+		delayedState = $delayed;
+		constraintsData = $constraints;
+	});
 </script>
 
 <Card.Root>
@@ -24,6 +34,7 @@
 		<Card.Description>Add/Edit your post data.</Card.Description>
 	</Card.Header>
 	<Card.Content>
+		<SuperDebug data={formData} />
 		{#if messageData}
 			<h3>{messageData}</h3>
 		{/if}
