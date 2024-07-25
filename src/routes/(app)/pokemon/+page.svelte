@@ -66,6 +66,12 @@
 			</Button>
 		</div>
 	</div>
+	<input
+		type="text"
+		placeholder="Global filter"
+		class="w-full border p-1"
+		onkeyup={(e) => tableState.handleServerSideFilter(e, currentUrl)}
+	/>
 	<Tabs.Content value="all">
 		<Card.Root>
 			<Card.Header>
