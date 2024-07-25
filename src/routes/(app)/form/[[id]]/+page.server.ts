@@ -21,10 +21,12 @@ export const load = (async ({ fetch, params, request }) => {
 			post: await superValidate(zod(postSchema))
 		};
 	}
-
+	console.time('fetchTime');
 	const response = await fetch(`https://jsonplaceholder.typicode.com/posts/${params.id}`).then(
 		(response) => response.json()
 	);
+
+	console.timeEnd('fetchTime');
 
 	const post: Post = postSchema.parse(response);
 
