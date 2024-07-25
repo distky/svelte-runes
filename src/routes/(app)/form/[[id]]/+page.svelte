@@ -68,9 +68,7 @@
 				<Button
 					type="button"
 					onclick={(_) => {
-						goto('./add', {
-							invalidateAll: true
-						});
+						goto('./add');
 					}}>Clear</Button
 				>
 			</div>
@@ -78,9 +76,7 @@
 				<Button
 					type="button"
 					onclick={(_) => {
-						goto('./1', {
-							invalidateAll: true
-						});
+						goto('./1');
 					}}>Data 1</Button
 				>
 			</div>
@@ -88,9 +84,7 @@
 				<Button
 					type="button"
 					onclick={(_) => {
-						goto('./2', {
-							invalidateAll: true
-						});
+						goto('./2');
 					}}>Data 2</Button
 				>
 			</div>
@@ -98,9 +92,7 @@
 				<Button
 					type="button"
 					onclick={(_) => {
-						goto('./3', {
-							invalidateAll: true
-						});
+						goto('./3');
 					}}>Data 3</Button
 				>
 			</div>
