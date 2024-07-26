@@ -11,7 +11,7 @@ const postSchema = z.object({
 	userId: z.number()
 });
 
-type Post = z.infer<typeof postSchema>;
+export type Post = z.infer<typeof postSchema>;
 
 export const load = (async ({ fetch, params, request }) => {
 	if (!params.id) redirect(302, request.url + '/add');

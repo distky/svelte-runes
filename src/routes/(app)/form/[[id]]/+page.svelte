@@ -4,8 +4,10 @@
 	import * as Card from '$lib/components/ui/card';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
+	import fetch from '$lib/fetch-util';
 	import SuperDebug, { superForm } from 'sveltekit-superforms';
 	import type { PageData } from './$types';
+	import type { Post } from './+page.server';
 
 	let { data }: { data: PageData } = $props();
 
@@ -26,6 +28,14 @@
 		delayedState = $delayed;
 		constraintsData = $constraints;
 	});
+
+	const fetchPosts = async () => {
+		const posts = await fetch<Post[]>('https://jsonplaceholder.typicode.com/posts').then(
+			(response) => response.json()
+		);
+
+		return posts;
+	};
 </script>
 
 <Card.Root>
@@ -94,6 +104,15 @@
 					onclick={(_) => {
 						goto('./3');
 					}}>Data 3</Button
+				>
+			</div>
+			<div>
+				<Button
+					type="button"
+					onclick={async (_) => {
+						const posts = await fetchPosts();
+						console.log(posts);
+					}}>Fetch All Posts</Button
 				>
 			</div>
 		</form>
