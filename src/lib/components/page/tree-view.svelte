@@ -16,8 +16,10 @@
 	let {
 		tree_data,
 		tree_leaf
-	}: { tree_data: TreeData; tree_leaf?: Snippet<[{ item: TreeItem; list: TreeData; id: number }]> } =
-		$props();
+	}: {
+		tree_data: TreeData;
+		tree_leaf?: Snippet<[{ item: TreeItem; list: TreeData; id: number }]>;
+	} = $props();
 
 	function summaryKeyup(event: KeyboardEvent) {
 		if (event.key == ' ' && document.activeElement?.tagName != 'SUMMARY') {
