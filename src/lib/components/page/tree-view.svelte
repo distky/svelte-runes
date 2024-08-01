@@ -39,35 +39,24 @@
 						{:else}
 							{item.name}
 						{/if}
-						<!-- {@render children({ item, list: tree_data, id: i })} -->
-						<!-- <slot {item} list={tree_data} id={i}>
-							{item.name}
-						</slot> -->
 					</summary>
 
 					{#if item.children}
 						<div class="pl-8">
 							<svelte:self tree_data={item.children} let:item let:list={tree_data} let:id={i}>
-								<!-- {@render children({ item, list: tree_data, id: i })} -->
 								{#if tree_leaf}
 									{@render tree_leaf({ item, list: tree_data, id: i })}
 								{:else}
 									{item.name}
 								{/if}
-								<!-- <slot {item} list={tree_data} id={i}>{item.name}</slot> -->
 							</svelte:self>
 						</div>
 					{/if}
 				</details>
+			{:else if tree_leaf}
+				{@render tree_leaf({ item, list: tree_data, id: i })}
 			{:else}
-				{#if tree_leaf}
-					{@render tree_leaf({ item, list: tree_data, id: i })}
-				{:else}
-					{item.name}
-				{/if}
-				<!-- <slot {item} list={tree_data} id={i}>
-					{item.name}
-				</slot> -->
+				{item.name}
 			{/if}
 		</li>
 	{/each}
