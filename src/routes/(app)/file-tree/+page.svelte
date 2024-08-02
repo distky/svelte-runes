@@ -1,137 +1,197 @@
 <script lang="ts">
-	import * as Card from '$lib/components/ui/card/index.js';
+	import type { TreeData } from '$lib/components/page/tree-view.svelte';
+	import TreeView from '$lib/components/page/tree-view.svelte';
+
+	let tree_data: TreeData = [
+		{
+			name: 'Group',
+			selected: true,
+			children: [
+				{
+					name: 'Sub Group',
+					children: [
+						{
+							name: 'Item 1.1.1'
+						},
+						{
+							name: 'Item 1.1.2'
+						}
+					]
+				},
+				{
+					name: 'Group'
+				}
+			]
+		},
+		{
+			name: 'Item 2',
+			children: [
+				{
+					name: 'Item 2.1'
+				},
+				{
+					name: 'Item 2.2'
+				}
+			]
+		},
+		{
+			name: 'Item 3'
+		}
+	];
+
+	function duplicateItem(list: any[], id: number) {
+		list.splice(id + 1, 0, JSON.parse(JSON.stringify(list[id])));
+
+		tree_data = tree_data;
+	}
+
+	function deleteItem(list: any[], id: number) {
+		list.splice(id, 1);
+
+		tree_data = tree_data;
+	}
+
+	function addItem(list: any[], id: number) {
+		// Ensure that the children array exists
+		if (!list[id].children) {
+			list[id].children = [];
+		}
+
+		list[id].children.splice(
+			id + 1,
+			0,
+			JSON.parse(
+				JSON.stringify({
+					name: 'New Item'
+				})
+			)
+		);
+
+		tree_data = tree_data;
+	}
+
+	function addItemAtRoot() {
+		tree_data.splice(
+			tree_data.length,
+			0,
+			JSON.parse(
+				JSON.stringify({
+					name: 'New Item'
+				})
+			)
+		);
+
+		tree_data = tree_data;
+	}
+
+	function renameItem(list: any[], id: number, name: string) {
+		list[id].name = name;
+
+		tree_data = tree_data;
+	}
 </script>
 
-<Card.Root>
-	<Card.Header>
-		<Card.Title>Tree Preview</Card.Title>
-		<Card.Description>Test your tree.</Card.Description>
-	</Card.Header>
-	<Card.Content></Card.Content>
-</Card.Root>
+<div class="min-h-screen bg-neutral-800 text-neutral-200">
+	<div class="mx-auto flex h-full max-w-6xl flex-col p-5">
+		<h1 class="mb-9 text-3xl">Tree View with Svelte</h1>
 
-<style>
-	.starlight-file-tree {
-		--x-space: 1.5rem;
-		--y-space: 0.125rem;
-		--y-pad: 0;
+		<div class="grid grow grid-cols-2 gap-5">
+			<div class="rounded-md border border-green-500 bg-green-950/50 p-6">
+				<div
+					class="mb-5 flex overflow-hidden rounded-md border border-neutral-700 bg-neutral-900 text-neutral-500"
+				>
+					<button
+						on:click={() => {
+							addItemAtRoot();
+						}}
+						class="px-2 py-1 transition-all hover:bg-green-800/50 hover:text-green-100/50"
+						>Add File</button
+					>
+				</div>
+				<div>
+					<TreeView {tree_data}>
+						{#snippet tree_leaf({ item, list, id })}
+							<div class="group flex w-full border-b border-b-green-900 py-2">
+								<div class="flex grow gap-2">
+									{#if item.children && item.children.length > 0}
+										📁 <div class="text-neutral-500">{item.children.length}</div>
+									{:else}
+										📄
+									{/if}
+									<input
+										type="text"
+										value={item.name}
+										class="w-full shrink grow bg-transparent px-1 focus:outline-none focus:ring-0"
+										style="width: fit-content;"
+										on:input={(ev) => {
+											renameItem(list, id, ev.currentTarget.value);
+										}}
+									/>
+									<div
+										class="flex overflow-hidden rounded-md border border-neutral-700 bg-neutral-900 text-xs text-neutral-500 opacity-0 transition-all group-hover:opacity-100"
+									>
+										<button
+											on:click={() => {
+												addItem(list, id);
+											}}
+											class="px-2 py-1 transition-all hover:bg-green-800/50 hover:text-green-100/50"
+											>Add File</button
+										>
+										<button
+											on:click={() => {
+												duplicateItem(list, id);
+											}}
+											class="px-2 py-1 transition-all hover:bg-blue-800/50 hover:text-blue-100/50"
+											>Duplicate</button
+										>
+										<button
+											on:click={() => {
+												deleteItem(list, id);
+											}}
+											class="px-2 py-1 transition-all hover:bg-red-800/50 hover:text-red-100/50"
+											>Delete</button
+										>
+									</div>
+								</div>
+							</div>
+						{/snippet}
+					</TreeView>
+				</div>
+			</div>
+			<div
+				class="grid grid-cols-2 divide-x divide-blue-500 rounded-md border border-blue-500 bg-blue-950/50"
+			>
+				<div class="p-6">
+					<div class="mb-2 text-xl font-bold">Raw</div>
+					<TreeView {tree_data} />
+				</div>
 
-		display: block;
-		border: 1px solid var(--sl-color-gray-5);
-		padding: 1rem;
-		background-color: var(--sl-color-gray-6);
-		font-size: var(--sl-text-xs);
-		font-family: var(--__sl-font-mono);
-		overflow-x: auto;
-	}
-
-	.starlight-file-tree :global(.directory > details) {
-		border: 0;
-		padding: 0;
-		padding-inline-start: var(--x-space);
-		background: transparent;
-	}
-
-	.starlight-file-tree :global(.directory > details > summary) {
-		margin-inline-start: calc(-1 * var(--x-space));
-		border: 0;
-		padding: var(--y-pad) 0.625rem;
-		font-weight: normal;
-		color: var(--sl-color-white);
-		max-width: 100%;
-	}
-
-	.starlight-file-tree :global(.directory > details > summary::marker),
-	.starlight-file-tree :global(.directory > details > summary::-webkit-details-marker) {
-		color: var(--sl-color-gray-3);
-	}
-
-	.starlight-file-tree :global(.directory > details > summary:hover),
-	.starlight-file-tree :global(.directory > details > summary:hover .tree-icon) {
-		cursor: pointer;
-		color: var(--sl-color-text-accent);
-		fill: var(--sl-color-text-accent);
-	}
-
-	.starlight-file-tree :global(.directory > details > summary:hover ~ ul) {
-		border-color: var(--sl-color-gray-4);
-	}
-
-	.starlight-file-tree :global(.directory > details > summary:hover .highlight .tree-icon) {
-		fill: var(--sl-color-text-invert);
-	}
-
-	.starlight-file-tree :global(ul) {
-		margin-inline-start: 0.5rem;
-		border-inline-start: 1px solid var(--sl-color-gray-5);
-		padding: 0;
-		padding-inline-start: 0.125rem;
-		list-style: none;
-	}
-
-	.starlight-file-tree > :global(ul) {
-		margin: 0;
-		border: 0;
-		padding: 0;
-	}
-
-	.starlight-file-tree :global(li) {
-		margin: var(--y-space) 0;
-		padding: var(--y-pad) 0;
-	}
-
-	.starlight-file-tree :global(.file) {
-		margin-inline-start: calc(var(--x-space) - 0.125rem);
-		color: var(--sl-color-white);
-	}
-
-	.starlight-file-tree :global(.tree-entry) {
-		display: inline-flex;
-		align-items: flex-start;
-		flex-wrap: wrap;
-		max-width: calc(100% - 1rem);
-	}
-
-	@media (min-width: 30em) {
-		.starlight-file-tree :global(.tree-entry) {
-			flex-wrap: nowrap;
-		}
-	}
-
-	.starlight-file-tree :global(.tree-entry > :first-child) {
-		flex-shrink: 0;
-	}
-
-	.starlight-file-tree :global(.empty) {
-		color: var(--sl-color-gray-3);
-		padding-inline-start: 0.375rem;
-	}
-
-	.starlight-file-tree :global(.comment) {
-		color: var(--sl-color-gray-3);
-		padding-inline-start: 1.625rem;
-		max-width: 24rem;
-		min-width: 12rem;
-	}
-
-	.starlight-file-tree :global(.highlight) {
-		display: inline-block;
-		border-radius: 0.25rem;
-		padding-inline-end: 0.5rem;
-		color: var(--sl-color-text-invert);
-		background-color: var(--sl-color-text-accent);
-	}
-
-	.starlight-file-tree :global(svg) {
-		display: inline;
-		fill: var(--sl-color-gray-3);
-		vertical-align: middle;
-		margin-inline: 0.25rem 0.375rem;
-		width: 0.875rem;
-		height: 0.875rem;
-	}
-
-	.starlight-file-tree :global(.highlight svg.tree-icon) {
-		fill: var(--sl-color-text-invert);
-	}
-</style>
+				<div class="p-6">
+					<div class="mb-2 text-xl font-bold">Styled</div>
+					<TreeView {tree_data}>
+						{#snippet tree_leaf({ item, list, id })}
+							<div class="group flex w-full border-b border-b-blue-700 py-2">
+								{#if item.children}
+									<div class="grow">
+										📁 {item.name}
+									</div>
+								{:else}
+									<div class="grow">
+										📝 {item.name}
+									</div>
+								{/if}
+							</div>
+						{/snippet}
+					</TreeView>
+				</div>
+			</div>
+			<div>
+				<pre class="mt-5 rounded-md border border-neutral-600 bg-neutral-900 p-5">{JSON.stringify(
+						tree_data,
+						null,
+						2
+					)}</pre>
+			</div>
+		</div>
+	</div>
+</div>

@@ -7,11 +7,11 @@ import { fail, redirect, type Actions } from '@sveltejs/kit';
 const postSchema = z.object({
 	id: z.number(),
 	title: z.string(),
-	body: z.string().min(1),
+	body: z.string().min(5),
 	userId: z.number()
 });
 
-type Post = z.infer<typeof postSchema>;
+export type Post = z.infer<typeof postSchema>;
 
 export const load = (async ({ fetch, params, request }) => {
 	if (!params.id) redirect(302, request.url + '/add');

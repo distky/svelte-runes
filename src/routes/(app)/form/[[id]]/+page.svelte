@@ -4,18 +4,38 @@
 	import * as Card from '$lib/components/ui/card';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import { superForm } from 'sveltekit-superforms';
+	import fetch from '$lib/fetch-util';
+	import SuperDebug, { superForm } from 'sveltekit-superforms';
 	import type { PageData } from './$types';
+	import type { Post } from './+page.server';
 
 	let { data }: { data: PageData } = $props();
 
-	const { form, enhance, errors, message, constraints, delayed } = superForm(data.post);
+	const { form, enhance, errors, message, constraints, delayed } = superForm(data.post, {
+		resetForm: false
+	});
 
-	const formData = $derived($form);
-	const errorsData = $derived($errors);
-	const messageData = $derived($message);
-	const delayedState = $derived($delayed);
-	const constraintsData = $derived($constraints);
+	let formData = $state($form);
+	let errorsData = $state($errors);
+	let messageData = $state($message);
+	let delayedState = $state($delayed);
+	let constraintsData = $state($constraints);
+
+	$effect(() => {
+		formData = $form;
+		errorsData = $errors;
+		messageData = $message;
+		delayedState = $delayed;
+		constraintsData = $constraints;
+	});
+
+	const fetchPosts = async () => {
+		const posts = await fetch<Post[]>('https://jsonplaceholder.typicode.com/posts').then(
+			(response) => response.json()
+		);
+
+		return posts;
+	};
 </script>
 
 <Card.Root>
@@ -24,6 +44,7 @@
 		<Card.Description>Add/Edit your post data.</Card.Description>
 	</Card.Header>
 	<Card.Content>
+		<SuperDebug data={formData} />
 		{#if messageData}
 			<h3>{messageData}</h3>
 		{/if}
@@ -57,9 +78,7 @@
 				<Button
 					type="button"
 					onclick={(_) => {
-						goto('./add', {
-							invalidateAll: true
-						});
+						goto('./add');
 					}}>Clear</Button
 				>
 			</div>
@@ -67,9 +86,7 @@
 				<Button
 					type="button"
 					onclick={(_) => {
-						goto('./1', {
-							invalidateAll: true
-						});
+						goto('./1');
 					}}>Data 1</Button
 				>
 			</div>
@@ -77,9 +94,7 @@
 				<Button
 					type="button"
 					onclick={(_) => {
-						goto('./2', {
-							invalidateAll: true
-						});
+						goto('./2');
 					}}>Data 2</Button
 				>
 			</div>
@@ -87,10 +102,17 @@
 				<Button
 					type="button"
 					onclick={(_) => {
-						goto('./3', {
-							invalidateAll: true
-						});
+						goto('./3');
 					}}>Data 3</Button
+				>
+			</div>
+			<div>
+				<Button
+					type="button"
+					onclick={async (_) => {
+						const posts = await fetchPosts();
+						console.log(posts);
+					}}>Fetch All Posts</Button
 				>
 			</div>
 		</form>

@@ -27,15 +27,17 @@ export default function createTableState(
 
 	const onPaginate = $derived(async (offset: number, type: 'next' | 'prev', pageUrl: string) => {
 		isLoading = { ...isLoading, [type]: true };
-		pagination = {
-			...pagination,
-			pageIndex: offset
-		};
+
 		await goto(`${pageUrl}?limit=${pagination.pageSize}&offset=${offset}&filter=${globalFilter}`, {
 			replaceState: true,
 			keepFocus: true,
 			noScroll: true
 		});
+
+		pagination = {
+			...pagination,
+			pageIndex: offset
+		};
 
 		isLoading = { ...isLoading, [type]: false };
 	});
