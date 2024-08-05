@@ -7,10 +7,12 @@ import {
 	getPaginationRowModel,
 	renderComponent,
 	type ColumnDef,
+	type ExpandedState,
 	type PaginationState,
 	type Table
 } from '@tanstack/svelte-table';
 import type { JsonPlaceholder, JsonPlaceholderWithChildren } from './schema';
+import ExpandedCellHeader from '$lib/components/expanded-cell-header.svelte';
 
 export default function createTableState(
 	data: JsonPlaceholderWithChildren[],
@@ -25,7 +27,7 @@ export default function createTableState(
 		prev: false
 	});
 	let globalFilter = $state('');
-	let expanded: Record<string, boolean> = $state({});
+	let expanded: ExpandedState = $state({});
 
 	const onPaginate = $derived(async (offset: number, type: 'next' | 'prev', pageUrl: string) => {
 		isLoading = { ...isLoading, [type]: true };
@@ -45,9 +47,15 @@ export default function createTableState(
 	});
 
 	const toggleExpanded = $derived((rowIdx: string) => {
+		if (expanded === true) {
+			expanded = {
+				[rowIdx]: true
+			};
+			return;
+		}
 		expanded = {
 			...expanded,
-			[rowIdx]: !(expanded[rowIdx] || false)
+			[rowIdx]: !expanded[rowIdx]
 		};
 	});
 
@@ -92,15 +100,22 @@ export default function createTableState(
 		{
 			id: 'id',
 			accessorFn: (row) => row.id,
-			cell: ({ row, getValue }) =>
-				renderComponent(ExpandedCell<JsonPlaceholderWithChildren>, {
-					row,
+			cell: ({ row }) =>
+				renderComponent(ExpandedCell, {
+					isExpanded: row.getIsExpanded(),
+					canExpand: row.getCanExpand(),
 					toggleExpanded: () => {
 						toggleExpanded(String(row.index));
-					},
-					getValue
+					}
 				}),
-			header: () => 'Id'
+			header: ({ table }) =>
+				renderComponent(ExpandedCellHeader, {
+					isAllRowExpanded: table.getIsAllRowsExpanded(),
+					header: 'Id',
+					toggleAllRowExpanded: () => {
+						expanded = typeof expanded === 'boolean' ? {} : true;
+					}
+				})
 		},
 		{
 			accessorFn: (row) => row.title,

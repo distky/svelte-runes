@@ -1,22 +1,19 @@
 <script lang="ts" generics="T">
-	import type { Getter, Row } from '@tanstack/svelte-table';
 	import Button from './ui/button/button.svelte';
 
 	type Props = {
-		row: Row<T>;
+		canExpand: boolean;
+		isExpanded: boolean;
 		toggleExpanded: () => void;
-		getValue: Getter<unknown>;
 	};
 
-	let { row, getValue, toggleExpanded }: Props = $props();
+	let { canExpand, isExpanded, toggleExpanded }: Props = $props();
 </script>
 
-<div class="pl-[{row.depth * 2}rem]">
-	<div>
-		{#if row.getCanExpand()}
-			<Button onclick={toggleExpanded}>{row.getIsExpanded() ? '👇' : '👉'}</Button>
-		{:else}
-			🔵
-		{/if}
-	</div>
+<div>
+	{#if canExpand}
+		<Button onclick={toggleExpanded}>{isExpanded ? '👇' : '👉'}</Button>
+	{:else}
+		🔵
+	{/if}
 </div>
