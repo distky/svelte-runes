@@ -1,13 +1,16 @@
 import { goto } from '$app/navigation';
+import ExpandedCell from '$lib/components/expanded-cell.svelte';
 import {
 	createTable,
 	getCoreRowModel,
+	getExpandedRowModel,
 	getPaginationRowModel,
+	renderComponent,
 	type ColumnDef,
 	type PaginationState,
 	type Table
 } from '@tanstack/svelte-table';
-import type { JsonPlaceholderWithChildren } from './schema';
+import type { JsonPlaceholder, JsonPlaceholderWithChildren } from './schema';
 
 export default function createTableState(
 	data: JsonPlaceholderWithChildren[],
@@ -22,6 +25,7 @@ export default function createTableState(
 		prev: false
 	});
 	let globalFilter = $state('');
+	let expanded: Record<string, boolean> = $state({});
 
 	const onPaginate = $derived(async (offset: number, type: 'next' | 'prev', pageUrl: string) => {
 		isLoading = { ...isLoading, [type]: true };
@@ -40,11 +44,62 @@ export default function createTableState(
 		isLoading = { ...isLoading, [type]: false };
 	});
 
-	const columns: ColumnDef<JsonPlaceholderWithChildren>[] = $state([
+	const toggleExpanded = $derived((rowIdx: string) => {
+		expanded = {
+			...expanded,
+			[rowIdx]: !(expanded[rowIdx] || false)
+		};
+	});
+
+	const subColumns: ColumnDef<JsonPlaceholderWithChildren>[] = $derived([
+		{
+			accessorFn: (row) => row.id,
+			id: 'id',
+			cell: (info) => info.getValue(),
+			header: () => 'Id'
+		},
+		{
+			accessorFn: (row) => row.title,
+			id: 'title',
+			cell: (info) => info.getValue(),
+			header: () => 'Title'
+		},
+		{
+			accessorFn: (row) => row.body,
+			id: 'body',
+			cell: (info) => info.getValue(),
+			header: () => 'Body'
+		},
+		{
+			accessorFn: (row) => row.userId,
+			id: 'userId',
+			cell: (info) => info.getValue(),
+			header: () => 'User Id'
+		}
+	]);
+
+	const subTableConfig = $derived(
+		(row: JsonPlaceholder[]): Table<JsonPlaceholder> =>
+			createTable({
+				columns: subColumns,
+				data: row,
+				getCoreRowModel: getCoreRowModel(),
+				rowCount: count
+			})
+	);
+
+	const columns: ColumnDef<JsonPlaceholderWithChildren>[] = $derived([
 		{
 			id: 'id',
 			accessorFn: (row) => row.id,
-			cell: (info) => info.getValue(),
+			cell: ({ row, getValue }) =>
+				renderComponent(ExpandedCell<JsonPlaceholderWithChildren>, {
+					row,
+					toggleExpanded: () => {
+						toggleExpanded(String(row.index));
+					},
+					getValue
+				}),
 			header: () => 'Id'
 		},
 		{
@@ -67,10 +122,14 @@ export default function createTableState(
 			data: results,
 			getCoreRowModel: getCoreRowModel(),
 			getPaginationRowModel: getPaginationRowModel(),
+			getExpandedRowModel: getExpandedRowModel(),
+			getSubRows: (row) => row.children,
 			manualPagination: true,
+			manualExpanding: true,
 			rowCount: count,
 			state: {
-				pagination
+				pagination,
+				expanded
 			}
 		})
 	);
@@ -95,6 +154,9 @@ export default function createTableState(
 	return {
 		get table() {
 			return tableConfig;
+		},
+		get subTable() {
+			return subTableConfig;
 		},
 		set updateTable({
 			data,

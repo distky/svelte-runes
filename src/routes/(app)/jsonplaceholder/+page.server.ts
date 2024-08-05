@@ -1,9 +1,10 @@
 import type { PaginationState } from '@tanstack/svelte-table';
 import type { PageServerLoad } from './$types';
 import {
-	jsonPlaceholderWithChildrenSchema,
-	type JsonPlaceholderPaginated,
-	type JsonPlaceholderWithChildren
+	jsonPlaceholderSchema,
+	makeData,
+	type JsonPlaceholder,
+	type JsonPlaceholderPaginated
 } from './schema';
 
 export const load: PageServerLoad = async ({ fetch, url }) => {
@@ -12,9 +13,9 @@ export const load: PageServerLoad = async ({ fetch, url }) => {
 	const filter: string | undefined = url.searchParams.get('filter') ?? undefined;
 	const response = await fetch(`https://jsonplaceholder.typicode.com/posts`);
 
-	const data: JsonPlaceholderWithChildren[] = jsonPlaceholderWithChildrenSchema
-		.array()
-		.parse(await response.json());
+	const fetchData: JsonPlaceholder[] = jsonPlaceholderSchema.array().parse(await response.json());
+
+	const data = makeData(fetchData, 10, 10);
 
 	const paginatedData: JsonPlaceholderPaginated = {
 		results: data,
