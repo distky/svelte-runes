@@ -1,5 +1,5 @@
 import { goto } from '$app/navigation';
-import Cell from '$lib/components/Cell.svelte';
+import BadgeCell from '$lib/components/badge-cell.svelte';
 import {
 	createTable,
 	getCoreRowModel,
@@ -53,7 +53,7 @@ export default function createTableState(
 			accessorFn: (row) => row.url,
 			id: 'url',
 			cell: (info) => {
-				return renderComponent(Cell, {
+				return renderComponent(BadgeCell, {
 					test: info.getValue<'url'>()
 				});
 			},
