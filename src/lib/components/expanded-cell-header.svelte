@@ -1,5 +1,4 @@
 <script lang="ts" generics="T">
-	import type { Getter, Row } from '@tanstack/svelte-table';
 	import Button from './ui/button/button.svelte';
 
 	type Props = {

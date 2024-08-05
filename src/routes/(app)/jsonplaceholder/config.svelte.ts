@@ -100,18 +100,18 @@ export default function createTableState(
 		{
 			id: 'id',
 			accessorFn: (row) => row.id,
-			cell: ({ row, getValue }) =>
-				renderComponent(ExpandedCell<JsonPlaceholderWithChildren>, {
-					row,
+			cell: ({ row }) =>
+				renderComponent(ExpandedCell, {
+					isExpanded: row.getIsExpanded(),
+					canExpand: row.getCanExpand(),
 					toggleExpanded: () => {
 						toggleExpanded(String(row.index));
-					},
-					getValue
+					}
 				}),
 			header: ({ table }) =>
 				renderComponent(ExpandedCellHeader, {
 					isAllRowExpanded: table.getIsAllRowsExpanded(),
-					header: 'Title',
+					header: 'Id',
 					toggleAllRowExpanded: () => {
 						expanded = typeof expanded === 'boolean' ? {} : true;
 					}
