@@ -29,7 +29,7 @@ export default function createTableState(
 	let globalFilter = $state('');
 	let expanded: ExpandedState = $state({});
 
-	const onPaginate = $derived(async (offset: number, type: 'next' | 'prev', pageUrl: string) => {
+	const onPaginate = async (offset: number, type: 'next' | 'prev', pageUrl: string) => {
 		isLoading = { ...isLoading, [type]: true };
 
 		await goto(`${pageUrl}?limit=${pagination.pageSize}&offset=${offset}&filter=${globalFilter}`, {
@@ -44,9 +44,9 @@ export default function createTableState(
 		};
 
 		isLoading = { ...isLoading, [type]: false };
-	});
+	};
 
-	const toggleExpanded = $derived((rowIdx: string) => {
+	const toggleExpanded = (rowIdx: string) => {
 		if (expanded === true) {
 			expanded = {
 				[rowIdx]: true
@@ -57,9 +57,9 @@ export default function createTableState(
 			...expanded,
 			[rowIdx]: !expanded[rowIdx]
 		};
-	});
+	};
 
-	const subColumns: ColumnDef<JsonPlaceholderWithChildren>[] = $derived([
+	const subColumns: ColumnDef<JsonPlaceholderWithChildren>[] = [
 		{
 			accessorFn: (row) => row.id,
 			id: 'id',
@@ -84,19 +84,17 @@ export default function createTableState(
 			cell: (info) => info.getValue(),
 			header: () => 'User Id'
 		}
-	]);
+	];
 
-	const subTableConfig = $derived(
-		(row: JsonPlaceholder[]): Table<JsonPlaceholder> =>
-			createTable({
-				columns: subColumns,
-				data: row,
-				getCoreRowModel: getCoreRowModel(),
-				rowCount: count
-			})
-	);
+	const subTableConfig = (row: JsonPlaceholder[]): Table<JsonPlaceholder> =>
+		createTable({
+			columns: subColumns,
+			data: row,
+			getCoreRowModel: getCoreRowModel(),
+			rowCount: count
+		});
 
-	const columns: ColumnDef<JsonPlaceholderWithChildren>[] = $derived([
+	const columns: ColumnDef<JsonPlaceholderWithChildren>[] = [
 		{
 			id: 'id',
 			accessorFn: (row) => row.id,
@@ -129,7 +127,7 @@ export default function createTableState(
 			cell: (info) => info.getValue(),
 			header: () => 'User Id'
 		}
-	]);
+	];
 
 	const tableConfig: Table<JsonPlaceholderWithChildren> = $derived(
 		createTable({
@@ -149,22 +147,20 @@ export default function createTableState(
 		})
 	);
 
-	const handleServerSideFilter = $derived(
-		async (
-			e: KeyboardEvent & { currentTarget: EventTarget & HTMLInputElement },
-			pageUrl: string
-		) => {
-			globalFilter = e.currentTarget.value;
-			await goto(
-				`${pageUrl}?limit=${pagination.pageSize}&offset=${pagination.pageIndex}&filter=${globalFilter}`,
-				{
-					replaceState: true,
-					keepFocus: true,
-					noScroll: true
-				}
-			);
-		}
-	);
+	const handleServerSideFilter = async (
+		e: KeyboardEvent & { currentTarget: EventTarget & HTMLInputElement },
+		pageUrl: string
+	) => {
+		globalFilter = e.currentTarget.value;
+		await goto(
+			`${pageUrl}?limit=${pagination.pageSize}&offset=${pagination.pageIndex}&filter=${globalFilter}`,
+			{
+				replaceState: true,
+				keepFocus: true,
+				noScroll: true
+			}
+		);
+	};
 
 	return {
 		get table() {

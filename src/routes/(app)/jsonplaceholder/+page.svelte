@@ -79,7 +79,47 @@
 				<Card.Description>View your posts.</Card.Description>
 			</Card.Header>
 			<Card.Content>
-				<DataTable table={tableState.table} {tableHeader} {tableRow}></DataTable>
+				<DataTable table={tableState.table}>
+					{#snippet tableHeader(table: SvelteTable<JsonPlaceholderWithChildren>)}
+						{#each table.getHeaderGroups() as headerGroup}
+							<Table.Row>
+								{#each headerGroup.headers as header}
+									<Table.Head>
+										{#if !header.isPlaceholder}
+											<FlexRender
+												context={header.getContext()}
+												content={header.column.columnDef.header}
+											></FlexRender>
+										{:else}
+											""
+										{/if}
+									</Table.Head>
+								{/each}
+							</Table.Row>
+						{/each}
+					{/snippet}
+
+					{#snippet tableRow(table: SvelteTable<JsonPlaceholderWithChildren>)}
+						{#each table.getRowModel().rows as row}
+							<Table.Row>
+								{#each row.getVisibleCells() as cell}
+									<Table.Cell class="font-medium">
+										<FlexRender context={cell.getContext()} content={cell.column.columnDef.cell} />
+									</Table.Cell>
+								{/each}
+							</Table.Row>
+							{#if row.getIsExpanded()}
+								<Table.Row>
+									<Table.Cell colspan={row.getAllCells().length}>
+										<DataTable
+											table={tableState.subTable(row.originalSubRows as JsonPlaceholder[])}
+										/>
+									</Table.Cell>
+								</Table.Row>
+							{/if}
+						{/each}
+					{/snippet}
+				</DataTable>
 			</Card.Content>
 			<Card.Footer>
 				<div class="flex items-center justify-end space-x-4 py-4">
@@ -134,39 +174,3 @@
 		</Card.Root>
 	</Tabs.Content>
 </Tabs.Root>
-
-{#snippet tableHeader(table: SvelteTable<JsonPlaceholderWithChildren>)}
-	{#each table.getHeaderGroups() as headerGroup}
-		<Table.Row>
-			{#each headerGroup.headers as header}
-				<Table.Head>
-					{#if !header.isPlaceholder}
-						<FlexRender context={header.getContext()} content={header.column.columnDef.header}
-						></FlexRender>
-					{:else}
-						""
-					{/if}
-				</Table.Head>
-			{/each}
-		</Table.Row>
-	{/each}
-{/snippet}
-
-{#snippet tableRow(table: SvelteTable<JsonPlaceholderWithChildren>)}
-	{#each table.getRowModel().rows as row}
-		<Table.Row>
-			{#each row.getVisibleCells() as cell}
-				<Table.Cell class="font-medium">
-					<FlexRender context={cell.getContext()} content={cell.column.columnDef.cell} />
-				</Table.Cell>
-			{/each}
-		</Table.Row>
-		{#if row.getIsExpanded()}
-			<Table.Row>
-				<Table.Cell colspan={row.getAllCells().length}>
-					<DataTable table={tableState.subTable(row.originalSubRows as JsonPlaceholder[])} />
-				</Table.Cell>
-			</Table.Row>
-		{/if}
-	{/each}
-{/snippet}

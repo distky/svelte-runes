@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ fetch, url }) => {
 
 	const fetchData: JsonPlaceholder[] = jsonPlaceholderSchema.array().parse(await response.json());
 
-	const data = makeData(fetchData, 10, 10);
+	const data = makeData(fetchData, 20, 10);
 
 	const paginatedData: JsonPlaceholderPaginated = {
 		results: data,
