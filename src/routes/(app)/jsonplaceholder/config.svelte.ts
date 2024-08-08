@@ -1,9 +1,9 @@
 import { goto } from '$app/navigation';
+import ExpandedCellHeader from '$lib/components/expanded-cell-header.svelte';
 import ExpandedCell from '$lib/components/expanded-cell.svelte';
 import {
 	createTable,
 	getCoreRowModel,
-	getExpandedRowModel,
 	getPaginationRowModel,
 	renderComponent,
 	type ColumnDef,
@@ -11,8 +11,7 @@ import {
 	type PaginationState,
 	type Table
 } from '@tanstack/svelte-table';
-import type { JsonPlaceholder, JsonPlaceholderWithChildren } from './schema';
-import ExpandedCellHeader from '$lib/components/expanded-cell-header.svelte';
+import type { JsonPlaceholderPartial, JsonPlaceholderWithChildren } from './schema';
 
 export default function createTableState(
 	data: JsonPlaceholderWithChildren[],
@@ -28,6 +27,14 @@ export default function createTableState(
 	});
 	let globalFilter = $state('');
 	let expanded: ExpandedState = $state({});
+
+	const isAllRowsExpanded = (): boolean => {
+		return expanded === true;
+	};
+
+	const isRowExpanded = (id: string | number): boolean => {
+		return isAllRowsExpanded() || (typeof expanded === 'object' && expanded[id]);
+	};
 
 	const onPaginate = async (offset: number, type: 'next' | 'prev', pageUrl: string) => {
 		isLoading = { ...isLoading, [type]: true };
@@ -59,19 +66,7 @@ export default function createTableState(
 		};
 	};
 
-	const subColumns: ColumnDef<JsonPlaceholderWithChildren>[] = [
-		{
-			accessorFn: (row) => row.id,
-			id: 'id',
-			cell: (info) => info.getValue(),
-			header: () => 'Id'
-		},
-		{
-			accessorFn: (row) => row.title,
-			id: 'title',
-			cell: (info) => info.getValue(),
-			header: () => 'Title'
-		},
+	const subColumns: ColumnDef<JsonPlaceholderPartial>[] = [
 		{
 			accessorFn: (row) => row.body,
 			id: 'body',
@@ -86,7 +81,7 @@ export default function createTableState(
 		}
 	];
 
-	const subTableConfig = (row: JsonPlaceholder[]): Table<JsonPlaceholder> =>
+	const subTableConfig = (row: JsonPlaceholderPartial[]): Table<JsonPlaceholderPartial> =>
 		createTable({
 			columns: subColumns,
 			data: row,
@@ -100,18 +95,18 @@ export default function createTableState(
 			accessorFn: (row) => row.id,
 			cell: ({ row }) =>
 				renderComponent(ExpandedCell, {
-					isExpanded: row.getIsExpanded(),
-					canExpand: row.getCanExpand(),
+					isExpanded: isRowExpanded(row.original.id),
+					canExpand: !!row.original.children?.length,
 					toggleExpanded: () => {
-						toggleExpanded(String(row.index));
+						toggleExpanded(String(row.original.id));
 					}
 				}),
-			header: ({ table }) =>
+			header: () =>
 				renderComponent(ExpandedCellHeader, {
-					isAllRowExpanded: table.getIsAllRowsExpanded(),
+					isAllRowExpanded: isAllRowsExpanded(),
 					header: 'Id',
 					toggleAllRowExpanded: () => {
-						expanded = typeof expanded === 'boolean' ? {} : true;
+						expanded = isAllRowsExpanded() ? {} : true;
 					}
 				})
 		},
@@ -135,14 +130,10 @@ export default function createTableState(
 			data: results,
 			getCoreRowModel: getCoreRowModel(),
 			getPaginationRowModel: getPaginationRowModel(),
-			getExpandedRowModel: getExpandedRowModel(),
-			getSubRows: (row) => row.children,
 			manualPagination: true,
-			manualExpanding: true,
 			rowCount: count,
 			state: {
-				pagination,
-				expanded
+				pagination
 			}
 		})
 	);
@@ -196,6 +187,9 @@ export default function createTableState(
 		},
 		get handleServerSideFilter() {
 			return handleServerSideFilter;
+		},
+		get isRowExpanded() {
+			return isRowExpanded;
 		}
 	};
 }

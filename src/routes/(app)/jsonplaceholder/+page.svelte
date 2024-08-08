@@ -13,7 +13,11 @@
 	import ListFilter from 'lucide-svelte/icons/list-filter';
 	import type { PageData } from './$types';
 	import createTableState from './config.svelte';
-	import type { JsonPlaceholder, JsonPlaceholderWithChildren } from './schema';
+	import type {
+		JsonPlaceholder,
+		JsonPlaceholderPartial,
+		JsonPlaceholderWithChildren
+	} from './schema';
 
 	let { data }: { data: PageData } = $props();
 	let currentUrl = $page.url.pathname;
@@ -108,11 +112,11 @@
 									</Table.Cell>
 								{/each}
 							</Table.Row>
-							{#if row.getIsExpanded()}
+							{#if tableState.isRowExpanded(row.original.id)}
 								<Table.Row>
-									<Table.Cell colspan={row.getAllCells().length}>
+									<Table.Cell colspan={row.getVisibleCells().length}>
 										<DataTable
-											table={tableState.subTable(row.originalSubRows as JsonPlaceholder[])}
+											table={tableState.subTable(row.original.children as JsonPlaceholderPartial[])}
 										/>
 									</Table.Cell>
 								</Table.Row>
