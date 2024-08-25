@@ -28,12 +28,10 @@ export default function createTableState(
 	let globalFilter = $state('');
 	let expanded: ExpandedState = $state({});
 
-	const isAllRowsExpanded = (): boolean => {
-		return expanded === true;
-	};
+	const isAllRowsExpanded = $derived(typeof expanded === 'boolean' && expanded === true);
 
 	const isRowExpanded = (id: string | number): boolean => {
-		return isAllRowsExpanded() || (typeof expanded === 'object' && expanded[id]);
+		return isAllRowsExpanded || (typeof expanded === 'object' && expanded[id]);
 	};
 
 	const onPaginate = async (offset: number, type: 'next' | 'prev', pageUrl: string) => {
@@ -89,7 +87,7 @@ export default function createTableState(
 			rowCount: count
 		});
 
-	const columns: ColumnDef<JsonPlaceholderWithChildren>[] = [
+	const columns: ColumnDef<JsonPlaceholderWithChildren>[] = $derived([
 		{
 			id: 'id',
 			accessorFn: (row) => row.id,
@@ -103,10 +101,10 @@ export default function createTableState(
 				}),
 			header: () =>
 				renderComponent(ExpandedCellHeader, {
-					isAllRowExpanded: isAllRowsExpanded(),
+					isAllRowExpanded: isAllRowsExpanded,
 					header: 'Id',
 					toggleAllRowExpanded: () => {
-						expanded = isAllRowsExpanded() ? {} : true;
+						expanded = isAllRowsExpanded ? {} : true;
 					}
 				})
 		},
@@ -122,7 +120,7 @@ export default function createTableState(
 			cell: (info) => info.getValue(),
 			header: () => 'User Id'
 		}
-	];
+	]);
 
 	const tableConfig: Table<JsonPlaceholderWithChildren> = $derived(
 		createTable({

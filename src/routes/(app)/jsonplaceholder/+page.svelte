@@ -13,11 +13,7 @@
 	import ListFilter from 'lucide-svelte/icons/list-filter';
 	import type { PageData } from './$types';
 	import createTableState from './config.svelte';
-	import type {
-		JsonPlaceholder,
-		JsonPlaceholderPartial,
-		JsonPlaceholderWithChildren
-	} from './schema';
+	import type { JsonPlaceholderPartial, JsonPlaceholderWithChildren } from './schema';
 
 	let { data }: { data: PageData } = $props();
 	let currentUrl = $page.url.pathname;
@@ -84,25 +80,6 @@
 			</Card.Header>
 			<Card.Content>
 				<DataTable table={tableState.table}>
-					{#snippet tableHeader(table: SvelteTable<JsonPlaceholderWithChildren>)}
-						{#each table.getHeaderGroups() as headerGroup}
-							<Table.Row>
-								{#each headerGroup.headers as header}
-									<Table.Head>
-										{#if !header.isPlaceholder}
-											<FlexRender
-												context={header.getContext()}
-												content={header.column.columnDef.header}
-											></FlexRender>
-										{:else}
-											""
-										{/if}
-									</Table.Head>
-								{/each}
-							</Table.Row>
-						{/each}
-					{/snippet}
-
 					{#snippet tableRow(table: SvelteTable<JsonPlaceholderWithChildren>)}
 						{#each table.getRowModel().rows as row}
 							<Table.Row>
