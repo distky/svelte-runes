@@ -1,4 +1,4 @@
-import type { PaginationState } from '@tanstack/svelte-table';
+import type { PaginationState } from '@tanstack/table-core';
 import type { PageServerLoad } from './$types';
 import {
 	jsonPlaceholderSchema,

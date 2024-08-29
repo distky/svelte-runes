@@ -1,8 +1,9 @@
 <script lang="ts" generics="T">
 	import { browser } from '$app/environment';
 	import * as DataTable from '$lib/components/ui/table';
-	import { FlexRender, type Table } from '@tanstack/svelte-table';
+	import { type Table } from '@tanstack/table-core';
 	import type { Snippet } from 'svelte';
+	import { FlexRender } from '../tanstack-table';
 
 	let {
 		table,

@@ -1,16 +1,15 @@
 import { goto } from '$app/navigation';
 import ExpandedCellHeader from '$lib/components/expanded-cell-header.svelte';
 import ExpandedCell from '$lib/components/expanded-cell.svelte';
+import { createTable, renderComponent } from '$lib/components/page/tanstack-table';
 import {
-	createTable,
 	getCoreRowModel,
 	getPaginationRowModel,
-	renderComponent,
 	type ColumnDef,
 	type ExpandedState,
 	type PaginationState,
 	type Table
-} from '@tanstack/svelte-table';
+} from '@tanstack/table-core';
 import type { JsonPlaceholderPartial, JsonPlaceholderWithChildren } from './schema';
 
 export default function createTableState(

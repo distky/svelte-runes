@@ -7,13 +7,14 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import { FlexRender, type Table as SvelteTable } from '@tanstack/svelte-table';
+	import { type Table as SvelteTable } from '@tanstack/table-core';
 	import CirclePlus from 'lucide-svelte/icons/circle-plus';
 	import File from 'lucide-svelte/icons/file';
 	import ListFilter from 'lucide-svelte/icons/list-filter';
 	import type { PageData } from './$types';
 	import createTableState from './config.svelte';
 	import type { Pokemon } from './schema';
+	import { FlexRender } from '$lib/components/page/tanstack-table';
 
 	let { data }: { data: PageData } = $props();
 	let currentUrl = $page.url.pathname;
