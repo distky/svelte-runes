@@ -1,4 +1,4 @@
-import type { PaginationState } from '@tanstack/svelte-table';
+import type { PaginationState } from '@tanstack/table-core';
 import type { PageServerLoad } from './$types';
 import { placeholderSchema, type Placeholder } from './schema';
 
@@ -11,7 +11,9 @@ export const load: PageServerLoad = async ({ fetch, url }) => {
 	const data: Placeholder = placeholderSchema.parse(await response.json());
 
 	if (filter) {
-		data.results = data.results.filter((result) => result.name.toUpperCase().includes(filter.toUpperCase()));
+		data.results = data.results.filter((result) =>
+			result.name.toUpperCase().includes(filter.toUpperCase())
+		);
 		data.count = data.results.length;
 	}
 

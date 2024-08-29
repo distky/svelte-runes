@@ -1,15 +1,14 @@
 import { goto } from '$app/navigation';
-import Cell from '$lib/components/Cell.svelte';
+import BadgeCell from '$lib/components/badge-cell.svelte';
 import {
-	createTable,
 	getCoreRowModel,
 	getPaginationRowModel,
-	renderComponent,
 	type ColumnDef,
 	type PaginationState,
 	type Table
-} from '@tanstack/svelte-table';
+} from '@tanstack/table-core';
 import type { Pokemon } from './schema';
+import { createTable, renderComponent } from '$lib/components/page/tanstack-table';
 
 export default function createTableState(
 	data: Pokemon[],
@@ -53,7 +52,7 @@ export default function createTableState(
 			accessorFn: (row) => row.url,
 			id: 'url',
 			cell: (info) => {
-				return renderComponent(Cell, {
+				return renderComponent(BadgeCell, {
 					test: info.getValue<'url'>()
 				});
 			},

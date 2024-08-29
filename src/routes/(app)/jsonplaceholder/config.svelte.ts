@@ -1,18 +1,16 @@
 import { goto } from '$app/navigation';
+import ExpandedCellHeader from '$lib/components/expanded-cell-header.svelte';
 import ExpandedCell from '$lib/components/expanded-cell.svelte';
+import { createTable, renderComponent } from '$lib/components/page/tanstack-table';
 import {
-	createTable,
 	getCoreRowModel,
-	getExpandedRowModel,
 	getPaginationRowModel,
-	renderComponent,
 	type ColumnDef,
 	type ExpandedState,
 	type PaginationState,
 	type Table
-} from '@tanstack/svelte-table';
-import type { JsonPlaceholder, JsonPlaceholderWithChildren } from './schema';
-import ExpandedCellHeader from '$lib/components/expanded-cell-header.svelte';
+} from '@tanstack/table-core';
+import type { JsonPlaceholderPartial, JsonPlaceholderWithChildren } from './schema';
 
 export default function createTableState(
 	data: JsonPlaceholderWithChildren[],
@@ -29,7 +27,13 @@ export default function createTableState(
 	let globalFilter = $state('');
 	let expanded: ExpandedState = $state({});
 
-	const onPaginate = $derived(async (offset: number, type: 'next' | 'prev', pageUrl: string) => {
+	const isAllRowsExpanded = $derived(typeof expanded === 'boolean' && expanded === true);
+
+	const isRowExpanded = (id: string | number): boolean => {
+		return isAllRowsExpanded || (typeof expanded === 'object' && expanded[id]);
+	};
+
+	const onPaginate = async (offset: number, type: 'next' | 'prev', pageUrl: string) => {
 		isLoading = { ...isLoading, [type]: true };
 
 		await goto(`${pageUrl}?limit=${pagination.pageSize}&offset=${offset}&filter=${globalFilter}`, {
@@ -44,9 +48,9 @@ export default function createTableState(
 		};
 
 		isLoading = { ...isLoading, [type]: false };
-	});
+	};
 
-	const toggleExpanded = $derived((rowIdx: string) => {
+	const toggleExpanded = (rowIdx: string) => {
 		if (expanded === true) {
 			expanded = {
 				[rowIdx]: true
@@ -57,21 +61,9 @@ export default function createTableState(
 			...expanded,
 			[rowIdx]: !expanded[rowIdx]
 		};
-	});
+	};
 
-	const subColumns: ColumnDef<JsonPlaceholderWithChildren>[] = $derived([
-		{
-			accessorFn: (row) => row.id,
-			id: 'id',
-			cell: (info) => info.getValue(),
-			header: () => 'Id'
-		},
-		{
-			accessorFn: (row) => row.title,
-			id: 'title',
-			cell: (info) => info.getValue(),
-			header: () => 'Title'
-		},
+	const subColumns: ColumnDef<JsonPlaceholderPartial>[] = [
 		{
 			accessorFn: (row) => row.body,
 			id: 'body',
@@ -84,17 +76,15 @@ export default function createTableState(
 			cell: (info) => info.getValue(),
 			header: () => 'User Id'
 		}
-	]);
+	];
 
-	const subTableConfig = $derived(
-		(row: JsonPlaceholder[]): Table<JsonPlaceholder> =>
-			createTable({
-				columns: subColumns,
-				data: row,
-				getCoreRowModel: getCoreRowModel(),
-				rowCount: count
-			})
-	);
+	const subTableConfig = (row: JsonPlaceholderPartial[]): Table<JsonPlaceholderPartial> =>
+		createTable({
+			columns: subColumns,
+			data: row,
+			getCoreRowModel: getCoreRowModel(),
+			rowCount: count
+		});
 
 	const columns: ColumnDef<JsonPlaceholderWithChildren>[] = $derived([
 		{
@@ -102,18 +92,18 @@ export default function createTableState(
 			accessorFn: (row) => row.id,
 			cell: ({ row }) =>
 				renderComponent(ExpandedCell, {
-					isExpanded: row.getIsExpanded(),
-					canExpand: row.getCanExpand(),
+					isExpanded: isRowExpanded(row.original.id),
+					canExpand: !!row.original.children?.length,
 					toggleExpanded: () => {
-						toggleExpanded(String(row.index));
+						toggleExpanded(String(row.original.id));
 					}
 				}),
-			header: ({ table }) =>
+			header: () =>
 				renderComponent(ExpandedCellHeader, {
-					isAllRowExpanded: table.getIsAllRowsExpanded(),
+					isAllRowExpanded: isAllRowsExpanded,
 					header: 'Id',
 					toggleAllRowExpanded: () => {
-						expanded = typeof expanded === 'boolean' ? {} : true;
+						expanded = isAllRowsExpanded ? {} : true;
 					}
 				})
 		},
@@ -137,34 +127,28 @@ export default function createTableState(
 			data: results,
 			getCoreRowModel: getCoreRowModel(),
 			getPaginationRowModel: getPaginationRowModel(),
-			getExpandedRowModel: getExpandedRowModel(),
-			getSubRows: (row) => row.children,
 			manualPagination: true,
-			manualExpanding: true,
 			rowCount: count,
 			state: {
-				pagination,
-				expanded
+				pagination
 			}
 		})
 	);
 
-	const handleServerSideFilter = $derived(
-		async (
-			e: KeyboardEvent & { currentTarget: EventTarget & HTMLInputElement },
-			pageUrl: string
-		) => {
-			globalFilter = e.currentTarget.value;
-			await goto(
-				`${pageUrl}?limit=${pagination.pageSize}&offset=${pagination.pageIndex}&filter=${globalFilter}`,
-				{
-					replaceState: true,
-					keepFocus: true,
-					noScroll: true
-				}
-			);
-		}
-	);
+	const handleServerSideFilter = async (
+		e: KeyboardEvent & { currentTarget: EventTarget & HTMLInputElement },
+		pageUrl: string
+	) => {
+		globalFilter = e.currentTarget.value;
+		await goto(
+			`${pageUrl}?limit=${pagination.pageSize}&offset=${pagination.pageIndex}&filter=${globalFilter}`,
+			{
+				replaceState: true,
+				keepFocus: true,
+				noScroll: true
+			}
+		);
+	};
 
 	return {
 		get table() {
@@ -200,6 +184,9 @@ export default function createTableState(
 		},
 		get handleServerSideFilter() {
 			return handleServerSideFilter;
+		},
+		get isRowExpanded() {
+			return isRowExpanded;
 		}
 	};
 }

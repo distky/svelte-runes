@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script module lang="ts">
 	export interface TreeItem {
 		name: string;
 		children?: TreeItem[];
@@ -43,7 +43,13 @@
 
 					{#if item.children}
 						<div class="pl-8">
-							<svelte:self tree_data={item.children} let:item let:list={tree_data} let:id={i}>
+							<svelte:self
+								tree_data={item.children}
+								{tree_leaf}
+								let:item
+								let:list={tree_data}
+								let:id={i}
+							>
 								{#if tree_leaf}
 									{@render tree_leaf({ item, list: tree_data, id: i })}
 								{:else}

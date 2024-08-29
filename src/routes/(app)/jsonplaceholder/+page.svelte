@@ -7,13 +7,14 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import { FlexRender, type Table as SvelteTable } from '@tanstack/svelte-table';
+	import { type Table as SvelteTable } from '@tanstack/table-core';
 	import CirclePlus from 'lucide-svelte/icons/circle-plus';
 	import File from 'lucide-svelte/icons/file';
 	import ListFilter from 'lucide-svelte/icons/list-filter';
 	import type { PageData } from './$types';
 	import createTableState from './config.svelte';
-	import type { JsonPlaceholder, JsonPlaceholderWithChildren } from './schema';
+	import type { JsonPlaceholderPartial, JsonPlaceholderWithChildren } from './schema';
+	import { FlexRender } from '$lib/components/page/tanstack-table';
 
 	let { data }: { data: PageData } = $props();
 	let currentUrl = $page.url.pathname;
@@ -79,7 +80,28 @@
 				<Card.Description>View your posts.</Card.Description>
 			</Card.Header>
 			<Card.Content>
-				<DataTable table={tableState.table} {tableHeader} {tableRow}></DataTable>
+				<DataTable table={tableState.table}>
+					{#snippet tableRow(table: SvelteTable<JsonPlaceholderWithChildren>)}
+						{#each table.getRowModel().rows as row}
+							<Table.Row>
+								{#each row.getVisibleCells() as cell}
+									<Table.Cell class="font-medium">
+										<FlexRender context={cell.getContext()} content={cell.column.columnDef.cell} />
+									</Table.Cell>
+								{/each}
+							</Table.Row>
+							{#if tableState.isRowExpanded(row.original.id)}
+								<Table.Row>
+									<Table.Cell colspan={row.getVisibleCells().length}>
+										<DataTable
+											table={tableState.subTable(row.original.children as JsonPlaceholderPartial[])}
+										/>
+									</Table.Cell>
+								</Table.Row>
+							{/if}
+						{/each}
+					{/snippet}
+				</DataTable>
 			</Card.Content>
 			<Card.Footer>
 				<div class="flex items-center justify-end space-x-4 py-4">
@@ -134,39 +156,3 @@
 		</Card.Root>
 	</Tabs.Content>
 </Tabs.Root>
-
-{#snippet tableHeader(table: SvelteTable<JsonPlaceholderWithChildren>)}
-	{#each table.getHeaderGroups() as headerGroup}
-		<Table.Row>
-			{#each headerGroup.headers as header}
-				<Table.Head>
-					{#if !header.isPlaceholder}
-						<FlexRender context={header.getContext()} content={header.column.columnDef.header}
-						></FlexRender>
-					{:else}
-						""
-					{/if}
-				</Table.Head>
-			{/each}
-		</Table.Row>
-	{/each}
-{/snippet}
-
-{#snippet tableRow(table: SvelteTable<JsonPlaceholderWithChildren>)}
-	{#each table.getRowModel().rows as row}
-		<Table.Row>
-			{#each row.getVisibleCells() as cell}
-				<Table.Cell class="font-medium">
-					<FlexRender context={cell.getContext()} content={cell.column.columnDef.cell} />
-				</Table.Cell>
-			{/each}
-		</Table.Row>
-		{#if row.getIsExpanded()}
-			<Table.Row>
-				<Table.Cell colspan={row.getAllCells().length}>
-					<DataTable table={tableState.subTable(row.originalSubRows as JsonPlaceholder[])} />
-				</Table.Cell>
-			</Table.Row>
-		{/if}
-	{/each}
-{/snippet}

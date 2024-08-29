@@ -8,23 +8,13 @@ export const jsonPlaceholderSchema = z.object({
 });
 
 const jsonPlaceholderPartialSchema = z.object({
-	id: z.number(),
-	title: z.string(),
 	userId: z.number(),
-	body: z.string(),
+	body: z.string()
 });
 
-export const jsonPlaceholderWithChildrenSchema = jsonPlaceholderPartialSchema.merge(
+export const jsonPlaceholderWithChildrenSchema = jsonPlaceholderSchema.merge(
 	z.object({
-		children: z
-			.object({
-				id: z.number(),
-				title: z.string(),
-				body: z.string(),
-				userId: z.number()
-			})
-			.array()
-			.optional()
+		children: jsonPlaceholderPartialSchema.array().optional()
 	})
 );
 
@@ -36,6 +26,7 @@ export const paginatedSchema = z.object({
 export type JsonPlaceholderWithChildren = z.infer<typeof jsonPlaceholderWithChildrenSchema>;
 export type JsonPlaceholderPaginated = z.infer<typeof paginatedSchema>;
 export type JsonPlaceholder = z.infer<typeof jsonPlaceholderSchema>;
+export type JsonPlaceholderPartial = z.infer<typeof jsonPlaceholderPartialSchema>;
 
 const range = (len: number) => {
 	const arr: number[] = [];
